@@ -21,5 +21,6 @@ from user.views import goto
 urlpatterns = [
     path('', goto, name='goto'),
     path('admin/', admin.site.urls),
-    path('accounts/', include('user.urls'))
+    path('accounts/', include('user.urls')),
+    path('exams/', include('core.urls')),
 ]

@@ -9,9 +9,6 @@ os.environ['DJANGO_SETTINGS_MODULE'] = 'app.settings'
 class Command(BaseCommand):
     """Django command to create main main groups and sets up
     required permissions"""
-
-    # todo to be extended - add permission for owner and student
-    # todo while database is created
     def handle(self, *args, **options):
         group, created = Group.objects.get_or_create(name="owner")
         if created:

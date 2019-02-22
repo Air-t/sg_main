@@ -1,19 +1,23 @@
 from django.shortcuts import render, redirect
-from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth import logout, login
 from django.contrib import messages
 
+from .forms import UserCreationForm
+
 
 def goto(request):
-    return redirect('accounts/login/')
+    """Redirects client to the login page."""
+    return redirect('user:login')
 
 
 def home_view(request):
+    """Renders home view."""
     return render(request, 'home.html')
 
 
 def signup_view(request):
+    """Renders sign uo view."""
     if request.method == "POST":
         form = UserCreationForm(request.POST)
         if form.is_valid():
@@ -29,6 +33,7 @@ def signup_view(request):
 
 
 def login_view(request):
+    """Renders login view."""
     if request.method == "POST":
         form = AuthenticationForm(data=request.POST)
         if form.is_valid():
@@ -44,11 +49,8 @@ def login_view(request):
 
 
 def logout_view(request):
+    """Logs user out."""
     if request.method == "POST":
         logout(request)
         return redirect('user:home')
 
-
-@login_required(redirect_field_name='next')
-def exams_view(request):
-    return render(request, 'exams.html')
