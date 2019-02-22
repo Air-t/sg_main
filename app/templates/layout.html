@@ -11,22 +11,22 @@
     <title>Exam manager app</title>
   </head>
   <body>
-
     <nav class="navbar fixed-top navbar-dark bg-violet">
       <div class="containert justify-content-start">
         <a class="navbar-brand" href="{% url 'user:home' %}">HOME</a>
         <a class="navbar-brand" href="{% url 'core:exams' %}">Exams</a>
       </div>
       <div class="container justify-content-end">
-        <a class="navbar-brand" href="{% url 'user:signup' %}">Signup</a>
-        <a class="navbar-brand" href="{% url 'user:login' %}">Login</a>
-        {% if request.user.username != "AnonymousUser" %}
+        {% if request.user.username %}
           <a class="navbar-brand" href="{% url 'user:signup' %}">{{ request.user.username }}</a>
+          <form method="post" style="display:inline!important;" action="{% url 'user:logout' %}">
+            {% csrf_token %}
+            <button class="btn btn-outline-secondary" name="action" value="logout" type="submit">Logout</button>
+          </form>
+        {% else %}
+          <a class="navbar-brand" href="{% url 'user:signup' %}">Signup</a>
+          <a class="navbar-brand" href="{% url 'user:login' %}">Login</a>
         {% endif %}
-        <form method="post" style="display:inline!important;" action="{% url 'user:logout' %}">
-          {% csrf_token %}
-          <button class="btn btn-outline-secondary" name="action" value="logout" type="submit">Logout</button>
-        </form>
       </div>
     </nav>
 
