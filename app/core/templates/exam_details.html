@@ -2,33 +2,35 @@
 {% block content %}
 {% load crispy_forms_tags %}
 
-  <form class="form-group" method="post">{% csrf_token %}
-      {{ form|crispy }}
-      <hr>
-      <button class="btn btn-secondary" type="submit" name="action" value="commit">Add</button>
-  </form>
+<form class="form-group" method="post">{% csrf_token %}
+    {{ form|crispy }}
+    <hr>
+    <button class="btn btn-secondary" type="submit" name="action" value="commit">Add question</button>
+</form>
 
-{% if exams %}
+{% if models %}
 
 <table class="table table-sm table-bordered">
   <thead class="thead-light">
     <tr>
         <th>Manage</th>
-        <th>Exam description</th>
+        <th>Question</th>
+        <th>Max Points</th>
     </tr>
   </thead>
   <tbody>
-    {% for exam in exams %}
+    {% for model in models %}
       <tr>
         <td>
           <form method="post" style="display:inline!important;">
             {% csrf_token %}
-            <input type="hidden" name="id" value="{{ exam.id }}">
+            <input type="hidden" name="id_question" value="{{ model.id }}">
             <button class="btn btn-danger btn-sm" name="action" value="delete" type="submit">D</button>
             <button class="btn btn-warning btn-sm" name="action" value="edit" type="submit">E</button>
           </form>
         </td>
-        <td>{{ exam.name }}</td>
+        <td>{{ model.question }}</td>
+        <td>{{ model.max_points }}</td>
       </tr>
     {% endfor %}
   </tbody>

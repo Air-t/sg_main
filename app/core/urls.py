@@ -7,5 +7,5 @@ app_name = 'core'
 
 urlpatterns = [
     path('', exams_view, name='exams'),
-    path('exam/<int:id>/', show_exam, name='exam'),
+    path('exam/<int:id>', show_exam, name='exam'),
 ]

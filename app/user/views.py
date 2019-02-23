@@ -1,14 +1,16 @@
 from django.shortcuts import render, redirect
-from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.auth.forms import AuthenticationForm, PasswordChangeForm
 from django.contrib.auth import logout, login
+from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.contrib.auth import update_session_auth_hash
 
 from .forms import UserCreationForm
 
 
 def goto(request):
     """Redirects client to the login page."""
-    return redirect('user:login')
+    return redirect('user:home')
 
 
 def home_view(request):
@@ -54,3 +56,20 @@ def logout_view(request):
         logout(request)
         return redirect('user:home')
 
+
+@login_required()
+def user_view(request):
+    """Render user view"""
+    if request.method == "POST":
+        form = PasswordChangeForm(user=request.user, data=request.POST)
+        if form.is_valid():
+            user = form.save()
+            update_session_auth_hash(request, user)
+            messages.success(request, "Fields updated.")
+            return redirect('user:user')
+        else:
+            messages.warning(request, 'Update failed.')
+    else:
+        password_form = PasswordChangeForm(user=request.user)
+
+    return render(request, 'user.html', {'password_form': password_form})
