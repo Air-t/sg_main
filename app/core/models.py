@@ -37,7 +37,7 @@ class OpenAnswer(models.Model):
     assigned_comment = models.TextField(blank=True)
     is_evaluated = models.BooleanField(default=False)
 
-    question = models.ForeignKey(OpenQuestion, on_delete=models.CASCADE)
+    question = models.OneToOneField(OpenQuestion, on_delete=models.CASCADE)
     student = models.ForeignKey(User, on_delete=models.CASCADE)
 
 

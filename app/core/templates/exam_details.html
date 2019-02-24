@@ -2,40 +2,73 @@
 {% block content %}
 {% load crispy_forms_tags %}
 
-<form class="form-group" method="post">{% csrf_token %}
-    {{ form|crispy }}
-    <hr>
-    <button class="btn btn-secondary" type="submit" name="action" value="commit">Add question</button>
+<form class="form-group" method="post">
+  {% csrf_token %}
+  {{ form|crispy }}
+  <hr>
+  <button class="btn btn-secondary" type="submit" name="action" value="commit">Add question</button>
 </form>
 
-{% if models %}
+<div class="card border-secondary mb-3">
+  <div class="card-header">
+    <table class="table table-sm table-bordered">
+      <thead class="thead-light">
+        Questions in exam
+        <tr>
+            <th>Manage</th>
+            <th>Question</th>
+            <th>Max Points</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for model in models %}
+          <tr>
+            <td>
+              <form method="post" style="display:inline!important;">
+                {% csrf_token %}
+                <input type="hidden" name="id_question" value="{{ model.id }}">
+                <button class="btn btn-danger btn-sm" name="action" value="delete" type="submit">D</button>
+                <button class="btn btn-warning btn-sm" name="action" value="edit" type="submit">E</button>
+              </form>
+            </td>
+            <td>{{ model.question }}</td>
+            <td>{{ model.max_points }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
 
-<table class="table table-sm table-bordered">
-  <thead class="thead-light">
-    <tr>
-        <th>Manage</th>
-        <th>Question</th>
-        <th>Max Points</th>
-    </tr>
-  </thead>
-  <tbody>
-    {% for model in models %}
-      <tr>
-        <td>
-          <form method="post" style="display:inline!important;">
-            {% csrf_token %}
-            <input type="hidden" name="id_question" value="{{ model.id }}">
-            <button class="btn btn-danger btn-sm" name="action" value="delete" type="submit">D</button>
-            <button class="btn btn-warning btn-sm" name="action" value="edit" type="submit">E</button>
-          </form>
-        </td>
-        <td>{{ model.question }}</td>
-        <td>{{ model.max_points }}</td>
-      </tr>
-    {% endfor %}
-  </tbody>
-</table>
 
-{% endif %}
+<div class="card border-secondary mb-3">
+  <div class="card-header">
+    <table class="table table-sm table-bordered">
+      <thead class="thead-light">
+        Students assigned to the exam.
+        <tr>
+            <th>Manage</th>
+            <th>Name</th>
+            <th>Email</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for student in students %}
+          <tr>
+            <td>{{ student.student_id }}</td>
+            <td>{{ student.student__email }}</td>
+            <td>{{ student.student__username }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <hr>
+    <form class="form-group" action="{% url 'core:assign' id=id %}" method="post">
+      {% csrf_token %}
+      <button class="btn btn-secondary" type="submit" name="action" value="add">Add new student to exam</button>
+    </form>
+  </div>
+</div>
+
 
 {% endblock content %}

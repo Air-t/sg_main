@@ -1,5 +1,5 @@
 from django.forms import ModelForm
-from .models import Exam, OpenQuestion
+from .models import Exam, OpenQuestion, UserExam
 
 
 class ExamForm(ModelForm):
@@ -17,6 +17,11 @@ class OpenQuestionForm(ModelForm):
         fields = ['question', 'max_points']
 
 
+class AssignExamToUserForm(ModelForm):
+    """Form to assign user to a given exam"""
 
+    class Meta:
+        model = UserExam
+        fields = ['student', 'exams']
 
 

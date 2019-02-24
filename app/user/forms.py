@@ -31,10 +31,3 @@ class UserChangeForm(UserChangeForm):
         if email and User.objects.filter(email=email).exclude(username=username).exists():
             raise forms.ValidationError(u'Email addresses must be unique.')
         return email
-
-
-class UserChangeForm(UserChangeForm):
-
-    class Meta:
-        model = User
-        fields = ['username', 'email']

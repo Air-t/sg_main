@@ -5,3 +5,5 @@ from .models import Exam, OpenQuestion, OpenAnswer, UserExam
 
 admin.site.register(Exam)
 admin.site.register(OpenQuestion)
+admin.site.register(UserExam)
+admin.site.register(OpenAnswer)

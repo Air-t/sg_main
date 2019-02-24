@@ -18,7 +18,7 @@
       </div>
       <div class="container justify-content-end">
         {% if request.user.username %}
-          <a class="navbar-brand" href="{% url 'user:signup' %}">{{ request.user.username }}</a>
+          <a class="navbar-brand" href="{% url 'user:user' %}">{{ request.user.username }}</a>
           <form method="post" style="display:inline!important;" action="{% url 'user:logout' %}">
             {% csrf_token %}
             <button class="btn btn-outline-secondary" name="action" value="logout" type="submit">Logout</button>

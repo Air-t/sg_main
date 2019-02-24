@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
 
-from .forms import ExamForm, OpenQuestionForm
+from .forms import ExamForm, OpenQuestionForm, AssignExamToUserForm
 from .models import Exam, OpenQuestion
 
 
@@ -10,6 +10,7 @@ app_name = 'core'
 
 
 def in_owner_group(user):
+    """Check if logged user is in owner Group"""
     if user:
         return user.groups.filter(name='owner').count() != 0
     return False
@@ -39,28 +40,24 @@ def exams_view(request):
             messages.success(request, "You have created new exam.")
         else:
             messages.warning(request, 'Given exam already exists.')
-
             return redirect('core:exams')
 
     exams = Exam.objects.all()
     form = ExamForm()
-
     return render(request, 'exams.html', {'form': form, 'exams': exams})
 
 
+@user_passes_test(in_owner_group, login_url='user:login')
+@login_required(redirect_field_name='next')
 def show_exam(request, id):
     """Exam details view"""
     if request.method == "POST":
+        exam = Exam.objects.get(pk=id)
         if request.POST.get('action') is not None:
-            exam = Exam.objects.get(pk=id)
             action = request.POST.get('action')
             id_question = request.POST.get('id_question')
             if action == 'delete':
                 OpenQuestion.objects.get(pk=id_question).delete()
-
-                return redirect('core:exam', id=id)
-            if action == 'edit':
-
                 return redirect('core:exam', id=id)
 
         form = OpenQuestionForm(request.POST)
@@ -71,18 +68,29 @@ def show_exam(request, id):
             messages.success(request, "You have created new question.")
         else:
             messages.warning(request, 'Given question already exists.')
-
             return redirect('core:exam', id=id)
 
     questions = Exam.objects.get(pk=id).openquestion_set.all()
+    assigned_users = Exam.objects.get(pk=id).userexam_set.all().values('student_id',
+                                                                       'student__email',
+                                                                       'student__username')
     form = OpenQuestionForm()
-
-    return render(request, 'exam_details.html', {'form': form, 'models': questions})
-
-
-def update_exam(request):
-    pass
+    return render(request, 'exam_details.html', {'form': form,
+                                                 'students': assigned_users,
+                                                 'models': questions,
+                                                 'id': id})
 
 
-def evaluate_exam(request):
-    pass
+@user_passes_test(in_owner_group, login_url='user:login')
+@login_required(redirect_field_name='next')
+def evaluate_exam(request, id):
+    if request.method == "POST":
+        action = request.POST.get('action')
+        if action == 'assign':
+            form = AssignExamToUserForm(request.POST)
+            if form.is_valid():
+                form.save()
+            return redirect('core:exam', id=id)
+
+    assign_form = AssignExamToUserForm()
+    return render(request, 'assign.html', {'form': assign_form})

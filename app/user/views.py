@@ -5,7 +5,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.contrib.auth import update_session_auth_hash
 
-from .forms import UserCreationForm
+from .forms import UserCreationForm, UserChangeForm
 
 
 def goto(request):
@@ -61,15 +61,48 @@ def logout_view(request):
 def user_view(request):
     """Render user view"""
     if request.method == "POST":
-        form = PasswordChangeForm(user=request.user, data=request.POST)
-        if form.is_valid():
-            user = form.save()
-            update_session_auth_hash(request, user)
-            messages.success(request, "Fields updated.")
-            return redirect('user:user')
-        else:
-            messages.warning(request, 'Update failed.')
-    else:
-        password_form = PasswordChangeForm(user=request.user)
+        action = request.POST.get('action')
+        if action == 'password':
+            form = PasswordChangeForm(user=request.user, data=request.POST)
+            if form.is_valid():
+                user = form.save()
+                update_session_auth_hash(request, user)
+                messages.success(request, "Fields updated.")
+                return redirect('user:user')
+            else:
+                messages.warning(request, 'Update failed.')
+        elif action == 'profile':
+            form = UserChangeForm(request.POST, instance=request.user)
+            if form.is_valid():
+                form.save()
+                messages.success(request, "Fields updated.")
+                return redirect('user:user')
+            else:
+                messages.warning(request, 'Update failed.')
 
-    return render(request, 'user.html', {'password_form': password_form})
+    profile_form = UserChangeForm(instance=request.user)
+    password_form = PasswordChangeForm(user=request.user)
+
+    return render(request, 'user.html', {'password_form': password_form, 'profile_form': profile_form})
+
+
+
+
+
+
+# @login_required()
+# def user_view(request):
+#     """Render user view"""
+#     if request.method == "POST":
+#         form = PasswordChangeForm(user=request.user, data=request.POST)
+#         if form.is_valid():
+#             user = form.save()
+#             update_session_auth_hash(request, user)
+#             messages.success(request, "Fields updated.")
+#             return redirect('user:user')
+#         else:
+#             messages.warning(request, 'Update failed.')
+#     else:
+#         password_form = PasswordChangeForm(user=request.user)
+#
+#     return render(request, 'user.html', {'password_form': password_form})
