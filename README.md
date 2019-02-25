@@ -9,8 +9,6 @@ Owner can maker CRUD operations on exam sheets. Owner can evaluate students fini
 ### Role student
 Student should be able to participate in exam based on given permission. Only owner can grant permission to exams
 
- 
-
 ## Installation
 
 ### Docker and Docker-compose
@@ -19,6 +17,7 @@ Docker-compose has two services within. Application build and postgresql server.
 Please make sure that django setting.py database parameters are set properly.
 There are no fixures provided, howewer the instance of owner will be created with project deployment.
 This User will have granted permissions to access Exam section visible on navbar.
+Owner user will be set to username: owner; password test1234.
 
 ### Pure django
 This application may be tested as django standalone application, however postgresql or any other database
