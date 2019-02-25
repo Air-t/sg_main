@@ -16,12 +16,17 @@ Student should be able to participate in exam based on given permission. Only ow
 ### Docker and Docker-compose
 This application is ready to be deployed. Docker and Docker-compose scripts are prepared.
 Docker-compose has two services within. Application build and postgresql server.
-Please make sure that django setting.py database parameters are set properly. 
+Please make sure that django setting.py database parameters are set properly.
+There are no fixures provided, howewer the instance of owner will be created with project deployment.
+This User will have granted permissions to access Exam section visible on navbar.
 
 ### Pure django
 This application may be tested as django standalone application, however postgresql or any other database
 service needs to be firstly set up. You can replace postgresql database with SQLight database to ease API testing.
-
+Create owner instance:
+```python
+python manage.py create_owner <name> <password>
+```
 
 Setup virtual environment [virtualenv](https://virtualenv.pypa.io/en/latest/installation/)
 
