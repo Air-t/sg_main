@@ -1,9 +1,8 @@
 from django.shortcuts import render, redirect
-from django.contrib.auth.forms import AuthenticationForm, PasswordChangeForm
-from django.contrib.auth import logout, login
-from django.contrib.auth.decorators import login_required
+from django.views.generic.base import View
 from django.contrib import messages
-from django.contrib.auth import update_session_auth_hash
+from django.contrib.auth import update_session_auth_hash, logout, login
+from django.contrib.auth.forms import AuthenticationForm, PasswordChangeForm
 
 from .forms import UserCreationForm, UserChangeForm
 
@@ -13,14 +12,13 @@ def goto(request):
     return redirect('user:home')
 
 
-def home_view(request):
-    """Renders home view."""
-    return render(request, 'home.html')
+class SignupView(View):
+    """Handles sign uo view."""
 
+    def get(self, request, *args, **kwargs):
+        return render(request, 'signup.html', {'form': UserCreationForm()})
 
-def signup_view(request):
-    """Renders sign uo view."""
-    if request.method == "POST":
+    def post(self, request, *args, **kwargs):
         form = UserCreationForm(request.POST)
         if form.is_valid():
             user = form.save()
@@ -28,59 +26,55 @@ def signup_view(request):
             messages.success(request, "User created.")
             messages.success(request, "You are now logged in.")
             return redirect('user:home')
-    else:
-        form = UserCreationForm()
-
-    return render(request, 'signup.html', {'form': form})
+        return render(request, 'signup.html', {'form': form})
 
 
-def login_view(request):
-    """Renders login view."""
-    if request.method == "POST":
+class LoginView(View):
+    """Handles login view"""
+
+    def get(self, request, *args, **kwargs):
+        return render(request, 'login.html', {'form': AuthenticationForm()})
+
+    def post(self, request, *args, **kwargs):
         form = AuthenticationForm(data=request.POST)
         if form.is_valid():
             login(request, form.get_user())
             if 'next' in request.POST:
                 return redirect(request.POST['next'])
-            else:
-                return redirect('user:home')
-    else:
-        form = AuthenticationForm()
-
-    return render(request, 'login.html', {'form': form})
+        messages.warning(request, 'Failed to login. Please provide valid credentials.')
+        return redirect('user:login')
 
 
-def logout_view(request):
-    """Logs user out."""
-    if request.method == "POST":
+class LogoutView(View):
+    """Loggs user out request"""
+
+    def post(self, request, *args, **kwargs):
         logout(request)
         return redirect('user:home')
 
 
-@login_required()
-def user_view(request):
-    """Render user view"""
-    if request.method == "POST":
+class UserView(View):
+    """Handles User view"""
+
+    def post(self, request, *args, **kwargs):
         action = request.POST.get('action')
         if action == 'password':
             form = PasswordChangeForm(user=request.user, data=request.POST)
-            if form.is_valid():
-                user = form.save()
-                update_session_auth_hash(request, user)
-                messages.success(request, "Fields updated.")
-                return redirect('user:user')
-            else:
-                messages.warning(request, 'Update failed.')
-        elif action == 'profile':
+        else:
             form = UserChangeForm(request.POST, instance=request.user)
-            if form.is_valid():
-                form.save()
-                messages.success(request, "Fields updated.")
-                return redirect('user:user')
-            else:
-                messages.warning(request, 'Update failed.')
+        if form.is_valid():
+            user = form.save()
+            update_session_auth_hash(request, user)
+            messages.success(request, "Fields updated.")
+            return redirect('user:user')
+        else:
+            messages.warning(request, 'Update failed.')
 
-    profile_form = UserChangeForm(instance=request.user)
-    password_form = PasswordChangeForm(user=request.user)
+        return render(request, 'user.html', {'password_form': PasswordChangeForm(user=request.user),
+                                             'profile_form': UserChangeForm(instance=request.user)})
 
-    return render(request, 'user.html', {'password_form': password_form, 'profile_form': profile_form})
+    def get(self, request, *args, **kwargs):
+        profile_form = UserChangeForm(instance=request.user)
+        password_form = PasswordChangeForm(user=request.user)
+
+        return render(request, 'user.html', {'password_form': password_form, 'profile_form': profile_form})
