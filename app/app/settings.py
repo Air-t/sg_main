@@ -84,7 +84,7 @@ DATABASES = {
         'NAME': 'db',
         'HOST': 'localhost',
         'USER': 'postgres',
-        'PASSWORD': 'postgres',
+        'PASSWORD': 'coderslab',
     }
 }
 
@@ -148,5 +148,9 @@ MEDIA_URL = '/media/'
 
 
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
+
+FIXTURE_DIRS = (
+   os.path.join(BASE_DIR, 'fixtures'),
+)
 
 

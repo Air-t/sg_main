@@ -84,25 +84,3 @@ def user_view(request):
     password_form = PasswordChangeForm(user=request.user)
 
     return render(request, 'user.html', {'password_form': password_form, 'profile_form': profile_form})
-
-
-
-
-
-
-# @login_required()
-# def user_view(request):
-#     """Render user view"""
-#     if request.method == "POST":
-#         form = PasswordChangeForm(user=request.user, data=request.POST)
-#         if form.is_valid():
-#             user = form.save()
-#             update_session_auth_hash(request, user)
-#             messages.success(request, "Fields updated.")
-#             return redirect('user:user')
-#         else:
-#             messages.warning(request, 'Update failed.')
-#     else:
-#         password_form = PasswordChangeForm(user=request.user)
-#
-#     return render(request, 'user.html', {'password_form': password_form})
