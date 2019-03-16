@@ -263,3 +263,5 @@ fabric.properties
 .idea/*
 */.idea/*
 app/.idea/*
+**/**/migrations/**
+**/migrations/**

@@ -24,7 +24,6 @@ class SignupView(View):
             user = form.save()
             login(request, user)
             messages.success(request, "User created.")
-            messages.success(request, "You are now logged in.")
             return redirect('user:home')
         return render(request, 'signup.html', {'form': form})
 
