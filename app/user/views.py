@@ -40,6 +40,7 @@ class LoginView(View):
             login(request, form.get_user())
             if 'next' in request.POST:
                 return redirect(request.POST['next'])
+            return redirect('user:home')
         messages.warning(request, 'Failed to login. Please provide valid credentials.')
         return redirect('user:login')
 
