@@ -71,14 +71,14 @@ class UserApiTestCase(TestCase):
         response = self.client.get(CREATE_USER_URL)
 
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'signup.html')
+        self.assertTemplateUsed(response, 'user/signup.html')
 
     def test_login_page(self):
         """Test login page"""
         response = self.client.get(LOGIN_URL)
 
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'login.html')
+        self.assertTemplateUsed(response, 'user/login.html')
 
     def test_logged_user_redirects(self):
         """Test logged user is redirected when success login"""
@@ -96,7 +96,7 @@ class UserApiTestCase(TestCase):
         response = self.client.get(USER_URL)
 
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'user.html')
+        self.assertTemplateUsed(response, 'user/user.html')
 
 
 

@@ -44,7 +44,7 @@ def exams_view(request):
 
     exams = Exam.objects.all()
     form = ExamForm()
-    return render(request, 'exams.html', {'form': form, 'exams': exams})
+    return render(request, 'core/exams.html', {'form': form, 'exams': exams})
 
 
 @user_passes_test(in_owner_group, login_url='user:login')
@@ -75,7 +75,7 @@ def show_exam(request, id):
                                                                        'student__email',
                                                                        'student__username')
     form = OpenQuestionForm()
-    return render(request, 'exam_details.html', {'form': form,
+    return render(request, 'core/exam_details.html', {'form': form,
                                                  'students': assigned_users,
                                                  'models': questions,
                                                  'id': id})
@@ -93,4 +93,4 @@ def evaluate_exam(request, id):
             return redirect('core:exam', id=id)
 
     assign_form = AssignExamToUserForm()
-    return render(request, 'assign.html', {'form': assign_form})
+    return render(request, 'core/assign.html', {'form': assign_form})

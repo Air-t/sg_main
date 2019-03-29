@@ -8,7 +8,7 @@ from .views import SignupView, LoginView, LogoutView, UserView
 app_name = 'user'
 
 urlpatterns = [
-    path('home/', TemplateView.as_view(template_name='home.html'), name='home'),
+    path('home/', TemplateView.as_view(template_name='user/home.html'), name='home'),
     path('signup/', SignupView.as_view(), name='signup'),
     path('login/', LoginView.as_view(), name='login'),
     path('logout/', LogoutView.as_view(), name='logout'),
