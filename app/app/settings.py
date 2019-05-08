@@ -1,6 +1,5 @@
 import os
 
-
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -66,13 +65,11 @@ WSGI_APPLICATION = 'app.wsgi.application'
 
 # PURE DJANGO
 # Please set up this section to enable database connectivity
+
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'db',
-        'HOST': 'localhost',
-        'USER': 'postgres',
-        'PASSWORD': 'coderslab',
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     }
 }
 
@@ -120,7 +117,6 @@ USE_L10N = True
 
 USE_TZ = True
 
-
 # RestFramework settings
 
 REST_FRAMEWORK = {
@@ -128,7 +124,10 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.TokenAuthentication',
     ),
     'DEFAULT_PERMISSION_CLASSES': (
-        'rest_framework.permissions.IsAuthenticated', )
+        'rest_framework.permissions.IsAuthenticated',),
+    'DEFAULT_RENDERER_CLASSES': (
+        'rest_framework.renderers.JSONRenderer',
+    )
 }
 
 # Static files (CSS, JavaScript, Images)
@@ -141,7 +140,6 @@ STATICFILES_DIRS = [
 
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
-
 
 FIXTURE_DIRS = (
     os.path.join(BASE_DIR, 'fixtures'),

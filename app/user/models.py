@@ -12,6 +12,7 @@ class UserManager(BaseUserManager):
     A custom user manager to deal with emails as unique identifiers for auth
     instead of usernames. The default that's used is "UserManager"
     """
+
     def create_user(self, username, email, password, **extra_fields):
         """
         Creates and saves a User with the given username, email and password.
@@ -74,16 +75,13 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     EMAIL_FIELD = 'email'
     USERNAME_FIELD = 'username'
-    REQUIRED_FIELDS = ['email',]
+    REQUIRED_FIELDS = ['email', ]
 
 
-class Student(models.Model):
+class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
+
+    # todo: to be implemented
 
     def __str__(self):
         return self.user.username
-
-
-
-
-

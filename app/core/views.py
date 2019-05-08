@@ -2,21 +2,23 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
 
+from rest_framework import routers, serializers, viewsets
+
 from .forms import ExamForm, OpenQuestionForm, AssignExamToUserForm
 from .models import Exam, OpenQuestion
-
+from .serializers import ExamSerializer
 
 app_name = 'core'
 
 
-def in_owner_group(user):
+def in_teacher_group(user):
     """Check if logged user is in owner Group"""
     if user:
-        return user.groups.filter(name='owner').count() != 0
+        return user.groups.filter(name='teacher').count() != 0
     return False
 
 
-@user_passes_test(in_owner_group, login_url='user:login')
+@user_passes_test(in_teacher_group, login_url='user:login')
 @login_required(redirect_field_name='next')
 def exams_view(request):
     """Exam list view"""
@@ -36,7 +38,9 @@ def exams_view(request):
 
         form = ExamForm(request.POST)
         if form.is_valid():
-            form.save()
+            exam = form.save(commit=False)
+            exam.teacher = request.user
+            exam.save()
             messages.success(request, "You have created new exam.")
         else:
             messages.warning(request, 'Given exam already exists.')
@@ -47,7 +51,7 @@ def exams_view(request):
     return render(request, 'core/exams.html', {'form': form, 'exams': exams})
 
 
-@user_passes_test(in_owner_group, login_url='user:login')
+@user_passes_test(in_teacher_group, login_url='user:login')
 @login_required(redirect_field_name='next')
 def show_exam(request, id):
     """Exam details view"""
@@ -70,18 +74,18 @@ def show_exam(request, id):
             messages.warning(request, 'Given question already exists.')
             return redirect('core:exam', id=id)
 
-    questions = Exam.objects.get(pk=id).openquestion_set.all()
+    questions = Exam.objects.get(pk=id).questions.all()
     assigned_users = Exam.objects.get(pk=id).userexam_set.all().values('student_id',
                                                                        'student__email',
                                                                        'student__username')
     form = OpenQuestionForm()
     return render(request, 'core/exam_details.html', {'form': form,
-                                                 'students': assigned_users,
-                                                 'models': questions,
-                                                 'id': id})
+                                                      'students': assigned_users,
+                                                      'models': questions,
+                                                      'id': id})
 
 
-@user_passes_test(in_owner_group, login_url='user:login')
+@user_passes_test(in_teacher_group, login_url='user:login')
 @login_required(redirect_field_name='next')
 def evaluate_exam(request, id):
     if request.method == "POST":
@@ -94,3 +98,8 @@ def evaluate_exam(request, id):
 
     assign_form = AssignExamToUserForm()
     return render(request, 'core/assign.html', {'form': assign_form})
+
+
+class ExamViewSet(viewsets.ModelViewSet):
+    queryset = Exam.objects.all()
+    serializer_class = ExamSerializer

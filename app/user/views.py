@@ -4,10 +4,9 @@ from django.contrib import messages
 from django.contrib.auth import update_session_auth_hash, logout, login
 from django.contrib.auth.forms import AuthenticationForm, PasswordChangeForm
 
-from rest_framework.authentication import SessionAuthentication, BasicAuthentication
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.authtoken.views import ObtainAuthToken
+from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
-from rest_framework.views import APIView
 
 from .forms import UserCreationForm, UserChangeForm
 
@@ -49,6 +48,9 @@ class LoginView(View):
             login(request, form.get_user())
             if 'next' in request.POST:
                 return redirect(request.POST['next'])
+            if request.user.is_teacher:
+                return redirect('core:exams')
+            # todo if is_student > redirect to owner site
             return redirect('user:home')
         messages.warning(request, 'Failed to login. Please provide valid credentials.')
         return redirect('user:login')
@@ -86,5 +88,19 @@ class UserView(View):
             messages.warning(request, 'Update failed.')
 
         return render(request, 'user/user.html', {'password_form': PasswordChangeForm(user=request.user),
-                                             'profile_form': UserChangeForm(instance=request.user)})
+                                                  'profile_form': UserChangeForm(instance=request.user)})
 
+
+class CustomAuthToken(ObtainAuthToken):
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.serializer_class(data=request.data,
+                                           context={'request': request})
+        serializer.is_valid(raise_exception=True)
+        user = serializer.validated_data['user']
+        token, created = Token.objects.get_or_create(user=user)
+        return Response({
+            'token': token.key,
+            'user_id': user.pk,
+            'email': user.email
+        })

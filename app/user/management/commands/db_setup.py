@@ -7,12 +7,12 @@ os.environ['DJANGO_SETTINGS_MODULE'] = 'app.settings'
 
 
 class Command(BaseCommand):
-    """Django command to create main main groups and sets up
+    """Django command to create main groups and sets up
     required permissions"""
     def handle(self, *args, **options):
-        group, created = Group.objects.get_or_create(name="owner")
+        group, created = Group.objects.get_or_create(name="teacher")
         if created:
-            group.name = "owner"
+            group.name = "teacher"
             group.save()
 
         group, created = Group.objects.get_or_create(name="student")
