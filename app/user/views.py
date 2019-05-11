@@ -16,9 +16,6 @@ def goto(request):
     return redirect('user:home')
 
 
-# RestFramework get authToken
-
-
 # Pure django authentication
 class SignupView(View):
     """Handles sign uo view."""
@@ -50,7 +47,8 @@ class LoginView(View):
                 return redirect(request.POST['next'])
             if request.user.is_teacher:
                 return redirect('core:exams')
-            # todo if is_student > redirect to owner site
+            if request.user.is_student:
+                return redirect('core:student')
             return redirect('user:home')
         messages.warning(request, 'Failed to login. Please provide valid credentials.')
         return redirect('user:login')

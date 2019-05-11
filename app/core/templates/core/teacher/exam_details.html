@@ -1,4 +1,4 @@
-{% extends "owner_layout.html" %}
+{% extends "layout.html" %}
 {% block content %}
 {% load crispy_forms_tags %}
 
@@ -63,7 +63,7 @@
       </tbody>
     </table>
     <hr>
-    <form class="form-group" action="{% url 'core:assign' id=id %}" method="post">
+    <form class="form-group" action="#" method="post">
       {% csrf_token %}
       <button class="btn btn-secondary" type="submit" name="action" value="add">Add new student to exam</button>
     </form>

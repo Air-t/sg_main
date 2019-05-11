@@ -26,6 +26,7 @@ INSTALLED_APPS = [
     'user.apps.UserConfig',
     'core.apps.CoreConfig',
     'crispy_forms',
+    'django_bootstrap_breadcrumbs',
     'rest_framework',
     'rest_framework.authtoken'
 ]
@@ -148,3 +149,5 @@ FIXTURE_DIRS = (
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
 
 AUTH_USER_MODEL = 'user.User'
+
+LOGIN_URL = 'user:login'

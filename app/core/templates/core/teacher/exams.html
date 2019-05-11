@@ -1,4 +1,4 @@
-{% extends "owner_layout.html" %}
+{% extends "layout.html" %}
 {% block content %}
 {% load crispy_forms_tags %}
 
@@ -23,14 +23,12 @@
         {% for exam in exams %}
           <tr>
             <td>
-              <form method="post" style="display:inline!important;">
+              <form method="post" action="{% url 'core:exam-delete' id=exam.id %}" style="display:inline!important;">
                 {% csrf_token %}
-                <input type="hidden" name="id" value="{{ exam.id }}">
                 <button class="btn btn-danger btn-sm" name="action" value="delete" type="submit">D</button>
-                <button class="btn btn-warning btn-sm" name="action" value="edit" type="submit">E</button>
               </form>
             </td>
-            <td>{{ exam.name }}</td>
+            <td><a href="{% url 'core:exam' id=exam.id %}">{{ exam.name }}</a></td>
           </tr>
         {% endfor %}
       </tbody>
