@@ -7,6 +7,7 @@
       <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
       <!-- Bootstrap CSS -->
       <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
+      <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.2/css/all.css" integrity="sha384-oS3vJWv+0UjzBfQzYUhtDYW+Pj2yciDJxpsK1OYPAYjqT085Qq/1cq5FLXAZQ7Ay" crossorigin="anonymous">
       <link rel="stylesheet" href="{% static 'css/main.css' %}">
     <title>[ExApp]</title>
   </head>
@@ -16,15 +17,15 @@
           <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarToggleExternalContent" aria-controls="navbarToggleExternalContent" aria-expanded="false" aria-label="Toggle navigation">
             <span id="nav-icon" class="navbar-toggler-icon"></span>
           </button>
-          <a class="navbar-brand" href="{% url 'user:home' %}">HOME</a>
+          <a class="navbar-brand" href="{% url 'user:home' %}"><img class="light" src="{% static 'icon/home-solid.svg' %}" alt="[H]" width="32" height="32"></a>
         </div>
         <div class="d-flex flex-row-reverse bd-highlight mb-3">
           {% if request.user.username %}
-            <a class="navbar-brand" href="{% url 'user:user' %}">{{ request.user.username }}</a>
             <form method="post" style="display:inline!important;" action="{% url 'user:logout' %}">
               {% csrf_token %}
-              <button class="btn btn-outline-secondary" name="action" value="logout" type="submit"><img src="{% static 'icon/turn_off.svg' %}" alt="X" width="30" height="30"></button>
+              <button class="btn btn-outline-secondary" name="action" value="logout" type="submit"><img class="light" src="{% static 'icon/sign-out-alt-solid.svg' %}" alt="[X]" width="32" height="32"></button>
             </form>
+            <a class="navbar-brand" href="{% url 'user:user' %}"><img class="light" src="{% static 'icon/user-regular.svg' %}" alt="" width="32" height="32"> {{ request.user.username }}</a>
           {% else %}
             <a class="navbar-brand" href="{% url 'user:signup' %}">Signup</a>
             <a class="navbar-brand" href="{% url 'user:login' %}">Login</a>
@@ -51,9 +52,9 @@
     {% else %}
     <div class="navbar">
       <div id="mySidenav" class="sidenav">
-        <a href="{% url 'contact' %}">Contact</a>
-        <a href="{% url 'feedback' %}">Leave FeedBack</a>
-        <a href="{% url 'about' %}">About</a>
+        <a href="{% url 'contact' %}"><img class="icon" src="{% static 'icon/address-book-regular.svg' %}" alt="[C]" width="20" height="20">  Contact</a>
+        <a href="{% url 'feedback' %}"><img class="icon" src="{% static 'icon/file-signature-solid.svg' %}" alt="[F]" width="20" height="20">  Feedback</a>
+        <a href="{% url 'about' %}"><img class="icon" src="{% static 'icon/info-circle-solid.svg' %}" alt="[I]" width="20" height="20">  About</a>
       </div>
     </div>
     {% endif %}
@@ -64,7 +65,7 @@
         <div class="container">
           {% if messages %}
             {% for message in messages %}
-              <div class="alert alert-{{ message.tags }}" data-dismiss="alert">
+              <div class="alert alert-{{ message.tags }} shadow" data-dismiss="alert">
                 {{ message }}
               </div>
             {% endfor %}

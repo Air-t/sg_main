@@ -16,6 +16,24 @@ body a{
   box-shadow: 5px 10px 8px #888888;
 }
 
+img.icon {
+  opacity: 0.5;
+  filter: alpha(opacity=50); /* For IE8 and earlier */
+}
+
+img.light {
+  -webkit-filter: invert(100%);
+}
+
+div.card {
+  margin-bottom: 20px;
+}
+
+.tab {
+       display:inline-block;
+       margin-left: 10px;
+}
+
 /* The side navigation menu */
 .sidenav {
   height: 100%; /* 100% Full-height */
