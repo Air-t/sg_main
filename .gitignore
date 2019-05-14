@@ -265,3 +265,4 @@ fabric.properties
 app/.idea/*
 **/**/migrations/**
 **/migrations/**
+sendgrid.env

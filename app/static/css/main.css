@@ -29,6 +29,10 @@ div.card {
   margin-bottom: 20px;
 }
 
+form.card {
+  margin-bottom: 15px;
+}
+
 .tab {
        display:inline-block;
        margin-left: 10px;

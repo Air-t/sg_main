@@ -1,12 +1,15 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
+from django.urls import reverse
 from django.views.generic.base import View
+from django.views.generic.edit import DeleteView
+from django.views.generic.detail import DetailView
 from django.contrib.auth.mixins import UserPassesTestMixin, LoginRequiredMixin
 from django.contrib.auth.decorators import user_passes_test, login_required
 from django.core.mail import send_mail
 from django.conf import settings
 
-from .forms import ExamForm, OpenQuestionForm, FeedbackForm, AssignExamToUserForm
+from .forms import ExamForm, OpenQuestionForm, FeedbackForm, OpenQuestionFormset
 from .models import Exam, OpenQuestion
 from .mixins import LoginRequiredOwnerMixin, LoginRequiredStudentMixin
 
@@ -76,15 +79,68 @@ class ExamDeleteView(LoginRequiredOwnerMixin, UserPassesTestMixin, View):
         return redirect('core:exams')
 
 
-class ExamView(LoginRequiredOwnerMixin, UserPassesTestMixin, View):
+class ExamView(LoginRequiredOwnerMixin, UserPassesTestMixin, DetailView):
     """Handles single exam view"""
+
+    queryset = Exam.objects.select_related()
+    template_name = 'core/teacher/exam_details.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        return context
+
+
+class ExamAddOpenView(LoginRequiredOwnerMixin, UserPassesTestMixin, View):
+    """View to add open question set"""
 
     def get(self, request, id):
         exam = get_object_or_404(Exam, id=id)
-        return render(request, 'core/teacher/exam_details.html', {'form': OpenQuestionForm(),
+        return render(request, 'core/teacher/exam_open.html', {'formset': OpenQuestionFormset(),
+                                                               'exam': exam,
+                                                               'id': id})
+
+    def post(self, request, id):
+        """Handles creation of en exam form with formset"""
+        exam = get_object_or_404(Exam, id=id)
+        formset = OpenQuestionFormset(request.POST)
+        if formset.is_valid():
+            for form in formset:
+                question = form.save(commit=False)
+                question.exam = exam
+                try:
+                    question.save()
+                except Exception as e:
+                    print(e)
+                    return render(request, 'core/teacher/exam_details.html', {'formset': formset,
+                                                                              'exam': exam,
+                                                                              'students': exam.userexam_set.all(),
+                                                                              'models': exam.openquestion_set.all(),
+                                                                              'id': id})
+            messages.success(request, 'Exam questions added.')
+            return redirect('core:exam', pk=id)
+        else:
+            messages.warning(request, 'fail to add')
+            return redirect('core:exam', pk=id)
+
+
+class ExamDeleteOpenView(LoginRequiredOwnerMixin, UserPassesTestMixin, View):
+    def post(self, request, id, pk):
+        question = Exam.objects.get(pk=id).openquestion_set.get(pk=pk)
+        try:
+            question.delete()
+        except Exception as e:
+            print(e)
+        return redirect('core:exam', pk=id)
+
+
+class ExamAddCloseView(LoginRequiredOwnerMixin, UserPassesTestMixin, View):
+    """View to add open question set"""
+
+
+    def get(self, request, id):
+        exam = get_object_or_404(Exam, id=id)
+        return render(request, 'core/teacher/exam_details.html', {'formset': OpenQuestionFormset(),
                                                                   'exam': exam,
-                                                                  'students': exam.userexam_set.all(),
-                                                                  'models': exam.questions.all(),
                                                                   'id': id})
 
 

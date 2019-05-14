@@ -4,86 +4,71 @@
 
 <div class="card card-shadow">
   <ul class="list-group">
-      <li class="list-group-item d-flex justify-content-between align-items-center"><strong>{{ exam.name }}</strong>
+      <a class="list-group-item d-flex justify-content-between align-items-center" href="{% url 'core:exam' pk=object.id %}">{{ object.name }}
         <span>
-          <button id="open-question" class="btn btn-secondary tab" name="action" value="delete" type="submit"><i class="fas fa-plus-circle"></i> Open</button>
-          <button id="close-question"class="btn btn-secondary tab" name="action" value="delete" type="submit"><i class="fas fa-plus-circle"></i> Close</button>
-          <button id="close-question"class="btn btn-primary tab" name="action" value="delete" type="submit"><i class="far fa-save"></i> Save</button>
+          <form class="form-inline" method="GET" action="{% url 'core:exam-add-open' id=object.id %}" style="display:inline!important;">
+            <button class="btn btn-secondary btn-sm tab" name="submit" value="open" type="submit"><i class="fas fa-door-open"></i></button>
+          </form>
+          <form class="form-inline" method="GET" action="{% url 'core:exam-add-close' id=object.id %}" style="display:inline!important;">
+            <button class="btn btn-secondary btn-sm tab" name="submit" value="close" type="submit"><i class="fas fa-door-closed"></i></button>
+          </form>
+          <form class="form-inline" method="post" action="{% url 'core:exam-delete' id=object.id %}" style="display:inline!important;">
+            {% csrf_token %}
+            <button class="btn btn-secondary btn-sm tab delete" name="delete" value="delete" type="submit"><i class="fas fa-trash-restore"></i></button>
+          </form>
         </span>
+      </a>
+  </ul>
+</div>
+
+<div id="first-question" class="card card-shadow">
+  <ul class="list-group">
+      <li class="list-group-item d-flex justify-content-between align-items-center"><strong>Exam statistic to be implemented.</strong>
+
       </li>
   </ul>
 </div>
 
-<div class="card card-shadow">
-  <div class="card-body">
-    <form class="form-inline" method="post">
-      {% csrf_token %}
-      {{ form|crispy }}
-      <button class="btn btn-primary tab" type="submit" name="action" value="commit">Add</button>
-    </form>
+<div class="row">
+  <div class="col-sm">
+
+    {% if object.openquestion_set.all %}
+      <div class="card card-shadow">
+        <ul class="list-group">
+          {% for question in object.openquestion_set.all %}
+            <a class="list-group-item d-flex justify-content-between align-items-center" href="">{{ question.question }}
+              <span>
+                <form class="form-inline" method="post" action="{% url 'core:exam-delete-open' id=object.id pk=question.id %}" style="display:inline!important;">
+                  {% csrf_token %}
+                  <button class="btn btn-secondary btn-sm tab delete" name="delete" value="delete" type="submit"><i class="fas fa-trash-restore"></i></button>
+                </form>
+              </span>
+            </a>
+          {% endfor %}
+        </ul>
+      </div>
+    {% endif %}
+
+  </div>
+
+  <div class="col-sm">
+    {% if object.closequestion_set.all %}
+      <div class="card card-shadow">
+        <ul class="list-group">
+          {% for question in object.closequestion_set.all %}
+            <a class="list-group-item d-flex justify-content-between align-items-center" href="">{{ question.question }}
+              <span>
+                <form class="form-inline" method="post" action="" style="display:inline!important;">
+                  {% csrf_token %}
+                  <button class="btn btn-secondary btn-sm tab delete" name="delete" value="delete" type="submit"><i class="fas fa-trash-restore"></i></button>
+                </form>
+              </span>
+            </a>
+          {% endfor %}
+        </ul>
+      </div>
+    {% endif %}
   </div>
 </div>
-
-<div class="card border-secondary mb-3">
-  <div class="card-header">
-    <table class="table table-sm table-bordered">
-      <thead class="thead-light">
-        Questions in exam
-        <tr>
-            <th>Manage</th>
-            <th>Question</th>
-            <th>Max Points</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for model in models %}
-          <tr>
-            <td>
-              <form method="post" style="display:inline!important;">
-                {% csrf_token %}
-                <input type="hidden" name="id_question" value="{{ model.id }}">
-                <button class="btn btn-danger btn-sm" name="action" value="delete" type="submit">D</button>
-                <button class="btn btn-warning btn-sm" name="action" value="edit" type="submit">E</button>
-              </form>
-            </td>
-            <td>{{ model.question }}</td>
-            <td>{{ model.max_points }}</td>
-          </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  </div>
-</div>
-
-
-<div class="card border-secondary mb-3">
-  <div class="card-header">
-    <table class="table table-sm table-bordered">
-      <thead class="thead-light">
-        Students assigned to the exam.
-        <tr>
-            <th>Manage</th>
-            <th>Name</th>
-            <th>Email</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for student in students %}
-          <tr>
-            <td>{{ student.student_id }}</td>
-            <td>{{ student.student__email }}</td>
-            <td>{{ student.student__username }}</td>
-          </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-    <hr>
-    <form class="form-group" action="#" method="post">
-      {% csrf_token %}
-      <button class="btn btn-secondary" type="submit" name="action" value="add">Add new student to exam</button>
-    </form>
-  </div>
-</div>
-
 
 {% endblock content %}

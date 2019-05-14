@@ -1,7 +1,6 @@
 from django.db import models
 from user.models import User
 
-
 NOTE_CHOICES = (
     (-1, 'Not evaluated'),
     (0, 'Failed'),
@@ -23,10 +22,10 @@ class Exam(models.Model):
 
 
 class OpenQuestion(models.Model):
-    question = models.CharField(unique=True, max_length=256)
+    question = models.CharField(unique=True, max_length=256, blank=False)
     answer = models.CharField(max_length=256, blank=True)
-    exam = models.ForeignKey(Exam, on_delete=models.CASCADE, related_name='questions', blank=True, null=True)
-    max_points = models.IntegerField(default=1)
+    exam = models.ForeignKey(Exam, on_delete=models.CASCADE, blank=True, null=True)
+    max_points = models.IntegerField(default=1, blank=False)
 
     def __str__(self):
         return self.question
@@ -39,6 +38,24 @@ class OpenAnswer(models.Model):
 
     question = models.OneToOneField(OpenQuestion, on_delete=models.CASCADE)
     student = models.ForeignKey(User, on_delete=models.CASCADE)
+
+
+class CloseQuestion(models.Model):
+    question = models.CharField(unique=True, max_length=256)
+    exam = models.ForeignKey(Exam, on_delete=models.CASCADE, blank=True, null=True)
+    max_points = models.IntegerField(default=1)
+
+    def __str__(self):
+        return self.question
+
+
+class CloseChoice(models.Model):
+    choice = models.CharField(unique=True, max_length=256)
+    is_true = models.BooleanField(default=False)
+    close_question = models.ForeignKey(CloseQuestion, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.choice
 
 
 class UserExam(models.Model):

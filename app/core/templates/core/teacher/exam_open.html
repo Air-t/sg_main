@@ -1,0 +1,33 @@
+{% extends "layout.html" %}
+{% block content %}
+{% load crispy_forms_tags %}
+
+<div id="first-question" class="card card-shadow">
+  <ul class="list-group">
+      <li class="list-group-item d-flex justify-content-between align-items-center"><strong>{{ exam.name }}</strong>
+        <span>
+          <button id="question-list" class="btn btn-secondary tab" name="action" value="" type="submit" onclick="window.location.href={% url 'core:exam' pk=exam.id %}"><i class="fas fa-plus-circle"></i> List</button>
+          <button id="open-question"class="btn btn-primary tab" name="action" value="delete" type="submit" form="open-question-form"><i class="far fa-save"></i> Save</button>
+        </span>
+      </li>
+  </ul>
+</div>
+
+<form class="card card-shadow" id="open-question-form" method="POST" action="">
+  {% csrf_token %}
+  {{ formset.management_form|crispy }}
+  {% for form in formset %}
+  <div id="open-question" class="form-row">
+    <div class="card-body">
+      {% csrf_token %}
+      {{ form|crispy }}
+      <div class="">
+        <button type="button" class="btn btn-success add-form-row">+</button>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</form>
+
+
+{% endblock content %}

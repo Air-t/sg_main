@@ -1,7 +1,8 @@
 from django import forms
 from django.utils.translation import gettext_lazy as _
+from django.forms import formset_factory, modelformset_factory
 
-from .models import Exam, OpenQuestion, UserExam
+from .models import Exam, OpenQuestion, CloseQuestion, UserExam
 
 
 class ExamForm(forms.ModelForm):
@@ -29,13 +30,49 @@ class OpenQuestionForm(forms.ModelForm):
         labels = {
             'question': '',
             'max_points': '',
+            'required': True,
         }
         widgets = {
             'question': forms.TextInput(attrs={'placeholder': _('Exam question goes here.'),
                                                'error_messages': _('This question already exists.'),
                                                }),
+            'max_points': forms.NumberInput(attrs={
+                'value': 'sd',
+                'min': 1,
+                'required': True,
+            })
 
         }
+
+
+OpenQuestionFormset = formset_factory(OpenQuestionForm, extra=1)
+
+
+class CloseQuestionForm(forms.ModelForm):
+    """Form to create single open question instance"""
+
+    class Meta:
+        model = CloseQuestion
+        fields = ['question', 'max_points']
+        labels = {
+            'question': '',
+            'max_points': '',
+            'required': True,
+        }
+        widgets = {
+            'question': forms.TextInput(attrs={'placeholder': _('Exam question goes here.'),
+                                               'error_messages': _('This question already exists.'),
+                                               }),
+            'max_points': forms.NumberInput(attrs={
+                'value': 'sd',
+                'min': 1,
+                'required': True,
+            })
+
+        }
+
+
+CloseQuestionFormset = formset_factory(CloseQuestionForm, extra=1)
 
 
 class AssignExamToUserForm(forms.ModelForm):
