@@ -4,13 +4,14 @@ from django.urls import reverse
 from django.views.generic.base import View
 from django.views.generic.edit import DeleteView
 from django.views.generic.detail import DetailView
+from django.views.generic.list import ListView
 from django.contrib.auth.mixins import UserPassesTestMixin, LoginRequiredMixin
 from django.contrib.auth.decorators import user_passes_test, login_required
 from django.core.mail import send_mail
 from django.conf import settings
 
-from .forms import ExamForm, OpenQuestionForm, FeedbackForm, OpenQuestionFormset
-from .models import Exam, OpenQuestion
+from .forms import ExamForm, OpenQuestionForm, FeedbackForm, OpenQuestionFormset, CloseChoiceFormset, CloseQuestionForm
+from .models import Exam, OpenQuestion, CloseChoice
 from .mixins import LoginRequiredOwnerMixin, LoginRequiredStudentMixin
 
 app_name = 'core'
@@ -82,8 +83,10 @@ class ExamDeleteView(LoginRequiredOwnerMixin, UserPassesTestMixin, View):
 class ExamView(LoginRequiredOwnerMixin, UserPassesTestMixin, DetailView):
     """Handles single exam view"""
 
-    queryset = Exam.objects.select_related()
     template_name = 'core/teacher/exam_details.html'
+
+    def get_queryset(self):
+        return Exam.objects.filter(teacher=self.request.user).select_related()
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -136,12 +139,40 @@ class ExamDeleteOpenView(LoginRequiredOwnerMixin, UserPassesTestMixin, View):
 class ExamAddCloseView(LoginRequiredOwnerMixin, UserPassesTestMixin, View):
     """View to add open question set"""
 
-
     def get(self, request, id):
         exam = get_object_or_404(Exam, id=id)
-        return render(request, 'core/teacher/exam_details.html', {'formset': OpenQuestionFormset(),
-                                                                  'exam': exam,
-                                                                  'id': id})
+        return render(request, 'core/teacher/exam_close.html',
+                      {'closeform': CloseQuestionForm(request.GET or None),
+                       'formset': CloseChoiceFormset(queryset=CloseChoice.objects.none()),
+                       'exam': exam,
+                       'id': id
+                       })
+
+    def post(self, request, id):
+        exam = get_object_or_404(Exam, id=id)
+        closeform = CloseQuestionForm(request.POST)
+        formset = CloseChoiceFormset(request.POST)
+        if closeform.is_valid() and formset.is_valid():
+            close_question = closeform.save(commit=False)
+            close_question.exam = exam
+            close_question.save()
+            for form in formset:
+                choice = form.save(commit=False)
+                choice.close_question = close_question
+                try:
+                    choice.save()
+                except Exception as e:
+                    print(e)
+                    return render(request, 'core/teacher/exam_details.html', {'formset': formset,
+                                                                              'exam': exam,
+                                                                              'students': exam.userexam_set.all(),
+                                                                              'models': exam.openquestion_set.all(),
+                                                                              'id': id})
+            messages.success(request, 'Exam questions added.')
+            return redirect('core:exam', pk=id)
+        else:
+            messages.warning(request, 'Fail to add question.')
+            return redirect('core:exam', pk=id)
 
 
 class StudentView(LoginRequiredStudentMixin, UserPassesTestMixin, View):
@@ -149,36 +180,3 @@ class StudentView(LoginRequiredStudentMixin, UserPassesTestMixin, View):
 
     def get(self, request):
         return render(request, 'core/student/student.html', {})
-
-
-@user_passes_test(is_in_owner_group, login_url='user:login')
-@login_required(redirect_field_name='next')
-def exams_view(request):
-    """Exam list view"""
-    if request.method == "POST":
-        if request.POST.get('action') is not None:
-            action = request.POST.get('action')
-            id = request.POST.get('id')
-            if action == 'delete':
-                exam = Exam.objects.get(pk=id).delete()
-                if exam[0] == 0:
-                    messages.warning(request, 'An error has occurred. Exam not deleted.')
-                else:
-                    messages.success(request, 'Exam deleted.')
-                return redirect('core:exams')
-            if action == 'edit':
-                return redirect('core:exam', id=id)
-
-        form = ExamForm(request.POST)
-        if form.is_valid():
-            exam = form.save(commit=False)
-            exam.teacher = request.user
-            exam.save()
-            messages.success(request, "You have created new exam.")
-        else:
-            messages.warning(request, 'Given exam already exists.')
-            return redirect('core:exams')
-
-    exams = Exam.objects.all()
-    form = ExamForm()
-    return render(request, 'core/teacher/exams.html', {'form': form, 'exams': exams})

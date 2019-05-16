@@ -2,7 +2,7 @@ from django import forms
 from django.utils.translation import gettext_lazy as _
 from django.forms import formset_factory, modelformset_factory
 
-from .models import Exam, OpenQuestion, CloseQuestion, UserExam
+from .models import Exam, OpenQuestion, CloseQuestion, CloseChoice, UserExam
 
 
 class ExamForm(forms.ModelForm):
@@ -60,11 +60,10 @@ class CloseQuestionForm(forms.ModelForm):
             'required': True,
         }
         widgets = {
-            'question': forms.TextInput(attrs={'placeholder': _('Exam question goes here.'),
+            'question': forms.TextInput(attrs={'placeholder': _('Question goes here.'),
                                                'error_messages': _('This question already exists.'),
                                                }),
             'max_points': forms.NumberInput(attrs={
-                'value': 'sd',
                 'min': 1,
                 'required': True,
             })
@@ -72,7 +71,21 @@ class CloseQuestionForm(forms.ModelForm):
         }
 
 
-CloseQuestionFormset = formset_factory(CloseQuestionForm, extra=1)
+CloseChoiceFormset = modelformset_factory(
+    CloseChoice,
+    fields=('choice', 'is_true'),
+    labels={
+        'choice': "Option",
+        'is_true': "Is valid?",
+    },
+    widgets={
+        'choice': forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Option',
+        }
+        )
+    }
+)
 
 
 class AssignExamToUserForm(forms.ModelForm):

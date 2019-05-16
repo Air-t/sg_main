@@ -1,20 +1,21 @@
 {% extends "layout.html" %}
 {% block content %}
 {% load crispy_forms_tags %}
+{% load static %}
 
 <div class="card card-shadow">
   <ul class="list-group">
       <a class="list-group-item d-flex justify-content-between align-items-center" href="{% url 'core:exam' pk=object.id %}">{{ object.name }}
         <span>
-          <form class="form-inline" method="GET" action="{% url 'core:exam-add-open' id=object.id %}" style="display:inline!important;">
-            <button class="btn btn-secondary btn-sm tab" name="submit" value="open" type="submit"><i class="fas fa-door-open"></i></button>
+          <form class="form-inline" method="GET" action="{% url 'core:exam-add-open' id=exam.id %}" style="display:inline!important;">
+            <button class="btn btn-secondary btn-sm tab" name="submit" value="open" type="submit"><img class="light" src="{% static 'webfonts/door-open-solid.svg' %}" width="20" height="20"></button>
           </form>
-          <form class="form-inline" method="GET" action="{% url 'core:exam-add-close' id=object.id %}" style="display:inline!important;">
-            <button class="btn btn-secondary btn-sm tab" name="submit" value="close" type="submit"><i class="fas fa-door-closed"></i></button>
+          <form class="form-inline" method="GET" action="{% url 'core:exam-add-close' id=exam.id %}" style="display:inline!important;">
+            <button class="btn btn-secondary btn-sm tab" name="submit" value="close" type="submit"><img class="light" src="{% static 'webfonts/door-closed-solid.svg' %}" width="20" height="20"></button>
           </form>
-          <form class="form-inline" method="post" action="{% url 'core:exam-delete' id=object.id %}" style="display:inline!important;">
+          <form class="form-inline" method="post" action="{% url 'core:exam-delete' id=exam.id %}" style="display:inline!important;">
             {% csrf_token %}
-            <button class="btn btn-secondary btn-sm tab delete" name="delete" value="delete" type="submit"><i class="fas fa-trash-restore"></i></button>
+            <button class="btn btn-secondary btn-sm tab delete" name="delete" value="delete" type="submit"><img class="light" src="{% static 'webfonts/trash-restore-solid.svg' %}" width="20" height="20"></button>
           </form>
         </span>
       </a>
@@ -38,9 +39,10 @@
           {% for question in object.openquestion_set.all %}
             <a class="list-group-item d-flex justify-content-between align-items-center" href="">{{ question.question }}
               <span>
+                <span class="badge badge-primary badge-pill">{{ question.max_points }}</span>
                 <form class="form-inline" method="post" action="{% url 'core:exam-delete-open' id=object.id pk=question.id %}" style="display:inline!important;">
                   {% csrf_token %}
-                  <button class="btn btn-secondary btn-sm tab delete" name="delete" value="delete" type="submit"><i class="fas fa-trash-restore"></i></button>
+                  <button class="btn btn-secondary btn-sm tab delete" name="delete" value="delete" type="submit"><img class="light" src="{% static 'webfonts/trash-restore-solid.svg' %}" width="20" height="20"></button>
                 </form>
               </span>
             </a>
@@ -60,7 +62,7 @@
               <span>
                 <form class="form-inline" method="post" action="" style="display:inline!important;">
                   {% csrf_token %}
-                  <button class="btn btn-secondary btn-sm tab delete" name="delete" value="delete" type="submit"><i class="fas fa-trash-restore"></i></button>
+                  <button class="btn btn-secondary btn-sm tab delete" name="delete" value="delete" type="submit"><img class="light" src="{% static 'webfonts/trash-restore-solid.svg' %}" width="20" height="20"></button>
                 </form>
               </span>
             </a>

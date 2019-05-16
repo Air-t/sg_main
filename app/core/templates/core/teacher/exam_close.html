@@ -19,10 +19,12 @@
   {{ formset.management_form|crispy }}
   {% for form in formset %}
   <div id="open-question" class="form-row">
-    <div class="card-body form-inline">
+    <div class="card-body">
       {% csrf_token %}
       {{ form|crispy }}
-      <button type="button" class="btn btn-secondary add-form-row tab"><img class="light" src="{% static 'webfonts/plus-circle-solid.svg' %}" width="20" height="20"></button>
+      <div class="">
+        <button type="button" class="btn btn-secondary add-form-row"><img class="light" src="{% static 'webfonts/plus-circle-solid.svg' %}" width="20" height="20"></button>
+      </div>
     </div>
   </div>
   {% endfor %}

@@ -30,8 +30,9 @@ function cloneMore(selector, prefix) {
     $(selector).after(newElement);
     var conditionRow = $('.form-row:not(:last)');
     conditionRow.find('.btn.add-form-row')
-    .removeClass('btn-success').addClass('btn-danger')
+    .removeClass('btn-secondary').addClass('btn-danger')
     .removeClass('add-form-row').addClass('remove-form-row')
+    conditionRow.find('img').first().attr('src', '/static/webfonts/minus-circle-solid.svg')
 
     return false;
 }
