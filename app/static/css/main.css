@@ -8,6 +8,10 @@ body a{
   padding-right: 10px;
 }
 
+.form-row {
+  margin-right: 20px;
+}
+
 .bg-owner {
   background-color: rgba(133, 20, 75, 0.7);
 }

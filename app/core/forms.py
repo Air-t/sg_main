@@ -5,6 +5,11 @@ from django.forms import formset_factory, modelformset_factory
 from .models import Exam, OpenQuestion, CloseQuestion, CloseChoice, UserExam
 
 
+CHOICES = (
+    (False, 'No'),
+    (True, 'Yes'),
+)
+
 class ExamForm(forms.ModelForm):
     """Form to create new Exam instance"""
 
@@ -35,9 +40,10 @@ class OpenQuestionForm(forms.ModelForm):
         widgets = {
             'question': forms.TextInput(attrs={'placeholder': _('Exam question goes here.'),
                                                'error_messages': _('This question already exists.'),
+                                               'class': 'form-control',
                                                }),
             'max_points': forms.NumberInput(attrs={
-                'value': 'sd',
+                'class': 'w-25',
                 'min': 1,
                 'required': True,
             })
@@ -61,10 +67,11 @@ class CloseQuestionForm(forms.ModelForm):
         }
         widgets = {
             'question': forms.TextInput(attrs={'placeholder': _('Question goes here.'),
-                                               'error_messages': _('This question already exists.'),
-                                               }),
+                                              'error_messages': _('This question already exists.'),
+                                              }),
             'max_points': forms.NumberInput(attrs={
                 'min': 1,
+
                 'required': True,
             })
 
@@ -73,17 +80,18 @@ class CloseQuestionForm(forms.ModelForm):
 
 CloseChoiceFormset = modelformset_factory(
     CloseChoice,
+    extra=1,
     fields=('choice', 'is_true'),
     labels={
-        'choice': "Option",
+        'choice': "",
         'is_true': "Is valid?",
     },
     widgets={
         'choice': forms.TextInput(attrs={
             'class': 'form-control',
             'placeholder': 'Option',
-        }
-        )
+        }),
+
     }
 )
 
@@ -100,3 +108,5 @@ class FeedbackForm(forms.Form):
     """Form to handle users feedback"""
     comment = forms.CharField(widget=forms.Textarea(attrs={'cols': 40, 'rows': 5}), required=True, label='')
     email = forms.EmailField(required=True, label='')
+
+

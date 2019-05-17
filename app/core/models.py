@@ -27,6 +27,9 @@ class OpenQuestion(models.Model):
     exam = models.ForeignKey(Exam, on_delete=models.CASCADE, blank=True, null=True)
     max_points = models.IntegerField(default=1, blank=False)
 
+    class Meta:
+        unique_together = ['question', 'exam']
+
     def __str__(self):
         return self.question
 
@@ -45,14 +48,22 @@ class CloseQuestion(models.Model):
     exam = models.ForeignKey(Exam, on_delete=models.CASCADE, blank=True, null=True)
     max_points = models.IntegerField(default=1)
 
+    class Meta:
+        unique_together = ['question', 'exam']
+
     def __str__(self):
         return self.question
 
+    @property
+    def valid_choices(self):
+        return self.closechoice_set.all().filter(is_true=True).count()
+
 
 class CloseChoice(models.Model):
-    choice = models.CharField(unique=True, max_length=256)
-    is_true = models.BooleanField(default=False)
+    choice = models.CharField(max_length=256)
+    is_true = models.BooleanField()
     close_question = models.ForeignKey(CloseQuestion, on_delete=models.CASCADE)
+
 
     def __str__(self):
         return self.choice

@@ -5,27 +5,38 @@
 
 <div id="first-question" class="card card-shadow">
   <ul class="list-group">
-      <li class="list-group-item d-flex justify-content-between align-items-center"><strong>{{ exam.name }}</strong>
+      <li class="list-group-item d-flex justify-content-between align-items-center"><strong>{{ exam.name }} |  <span class="text-muted">close question creator</span></strong>
         <span>
           <button id="question-list" class="btn btn-secondary tab" onclick="javascript:window.location.href='{% url 'core:exam' pk=exam.id %}'; return false;"><img class="light" src="{% static 'webfonts/tasks-solid.svg' %}" width="20" height="20"> List</button>
-          <button id="open-question"class="btn btn-primary tab" name="action" value="delete" type="submit" form="open-question-form"><img class="light" src="{% static 'webfonts/save-regular.svg' %}" width="20" height="20"> Save</button>
+          <button id="open-question"class="btn btn-primary tab" name="action" value="delete" type="submit" form="close-question-form"><img class="light" src="{% static 'webfonts/save-regular.svg' %}" width="20" height="20"> Save</button>
         </span>
       </li>
   </ul>
 </div>
 
-<form class="card card-shadow" id="open-question-form" method="POST" action="">
+<form class="card card-shadow" id="close-question-form" method="POST" action="">
   {% csrf_token %}
-  {{ formset.management_form|crispy }}
-  {% for form in formset %}
-  <div id="open-question" class="form-row">
-    <div class="card-body">
-      {% csrf_token %}
-      {{ form|crispy }}
-      <div class="">
-        <button type="button" class="btn btn-secondary add-form-row"><img class="light" src="{% static 'webfonts/plus-circle-solid.svg' %}" width="20" height="20"></button>
+  <div class="cadr-body alert alert-secondary card-shadow">
+    <div class="row">
+      <div class="col-12 col-md-10">
+        {{ closeform.question|as_crispy_field }}
+      </div>
+      <div class="col-6 col-md-2">
+        {{ closeform.max_points|as_crispy_field }}
       </div>
     </div>
+  </div>
+
+
+
+  {{ formset.management_form|crispy }}
+  {% for form in formset %}
+  <div id="open-question" class="card-body form-row form-inline">
+
+    {{ form.choice|as_crispy_field }}
+    {{ form.is_true|as_crispy_field }}
+
+    <button type="button" class="btn btn-secondary add-form-row tab"><img class="light" src="{% static 'webfonts/plus-circle-solid.svg' %}" width="20" height="20"></button>
   </div>
   {% endfor %}
 </form>

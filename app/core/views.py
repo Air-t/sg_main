@@ -142,7 +142,7 @@ class ExamAddCloseView(LoginRequiredOwnerMixin, UserPassesTestMixin, View):
     def get(self, request, id):
         exam = get_object_or_404(Exam, id=id)
         return render(request, 'core/teacher/exam_close.html',
-                      {'closeform': CloseQuestionForm(request.GET or None),
+                      {'closeform': CloseQuestionForm(),
                        'formset': CloseChoiceFormset(queryset=CloseChoice.objects.none()),
                        'exam': exam,
                        'id': id
@@ -157,6 +157,9 @@ class ExamAddCloseView(LoginRequiredOwnerMixin, UserPassesTestMixin, View):
             close_question.exam = exam
             close_question.save()
             for form in formset:
+                print(form.cleaned_data)
+                print('data')
+                print(form.data)
                 choice = form.save(commit=False)
                 choice.close_question = close_question
                 try:
