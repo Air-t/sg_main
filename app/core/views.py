@@ -1,8 +1,8 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
-from django.urls import reverse
+from django.urls import reverse, reverse_lazy
 from django.views.generic.base import View
-from django.views.generic.edit import DeleteView
+from django.views.generic.edit import DeleteView, CreateView
 from django.views.generic.detail import DetailView
 from django.views.generic.list import ListView
 from django.contrib.auth.mixins import UserPassesTestMixin, LoginRequiredMixin
@@ -15,13 +15,6 @@ from .models import Exam, OpenQuestion, CloseChoice
 from .mixins import LoginRequiredOwnerMixin, LoginRequiredStudentMixin
 
 app_name = 'core'
-
-
-def is_in_owner_group(user):
-    """Check if logged user is in owner Group"""
-    if user.is_anonymous:
-        return False
-    return user.is_teacher
 
 
 class FeedbackView(View):
@@ -93,6 +86,17 @@ class ExamView(LoginRequiredOwnerMixin, UserPassesTestMixin, DetailView):
         return context
 
 
+class ExamCreateView(LoginRequiredOwnerMixin, UserPassesTestMixin, CreateView):
+    model = Exam
+    form_class = ExamForm
+    success_url = reverse_lazy('core:exams')
+    http_method_names = ('POST',)
+
+    def form_valid(self, form):
+        messages.success("You have created new exam.")
+        return super().form_valid(form)
+
+
 class ExamAddOpenView(LoginRequiredOwnerMixin, UserPassesTestMixin, View):
     """View to add open question set"""
 
@@ -129,10 +133,7 @@ class ExamAddOpenView(LoginRequiredOwnerMixin, UserPassesTestMixin, View):
 class ExamDeleteOpenView(LoginRequiredOwnerMixin, UserPassesTestMixin, View):
     def post(self, request, id, pk):
         question = Exam.objects.get(pk=id).openquestion_set.get(pk=pk)
-        try:
-            question.delete()
-        except Exception as e:
-            print(e)
+        question.delete()
         return redirect('core:exam', pk=id)
 
 
@@ -148,6 +149,8 @@ class ExamAddCloseView(LoginRequiredOwnerMixin, UserPassesTestMixin, View):
                        'id': id
                        })
 
+    # TODO handling boolean value in frontend not working - problem with is_true value passing - only initial choices
+    # TODO can have true values.
     def post(self, request, id):
         exam = get_object_or_404(Exam, id=id)
         closeform = CloseQuestionForm(request.POST)
@@ -158,8 +161,6 @@ class ExamAddCloseView(LoginRequiredOwnerMixin, UserPassesTestMixin, View):
             close_question.save()
             for form in formset:
                 print(form.cleaned_data)
-                print('data')
-                print(form.data)
                 choice = form.save(commit=False)
                 choice.close_question = close_question
                 try:
@@ -176,6 +177,13 @@ class ExamAddCloseView(LoginRequiredOwnerMixin, UserPassesTestMixin, View):
         else:
             messages.warning(request, 'Fail to add question.')
             return redirect('core:exam', pk=id)
+
+
+class ExamDeleteCloseView(LoginRequiredOwnerMixin, UserPassesTestMixin, View):
+    def post(self, request, id, pk):
+        question = Exam.objects.get(pk=id).closequestion_set.get(pk=pk)
+        question.delete()
+        return redirect('core:exam', pk=id)
 
 
 class StudentView(LoginRequiredStudentMixin, UserPassesTestMixin, View):

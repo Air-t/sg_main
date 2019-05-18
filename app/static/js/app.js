@@ -14,7 +14,7 @@ function closeNav() {
 
 $(document).ready(function() {
 
-    var clickState = 1;
+    var clickState = 0;
     var btn = document.querySelector('.navbar-toggler-icon');
 
     btn.addEventListener('click', function(e){
@@ -33,4 +33,4 @@ $(document).ready(function() {
 });
 
 // default page setup
-openNav();
+// openNav();

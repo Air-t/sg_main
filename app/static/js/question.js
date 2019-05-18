@@ -20,11 +20,12 @@ function cloneMore(selector, prefix) {
     var newElement = $(selector).clone(true);
     var total = $('#id_' + prefix + '-TOTAL_FORMS').val();
     newElement.find(':input:not([type=button]):not([type=submit]):not([type=reset]):not([name=csrfmiddlewaretoken]):not([type=button])').each(function() {
-        console.log(this);
-        console.log($(this).attr('type'));
         var name = $(this).attr('name').replace('-' + (total-1) + '-', '-' + total + '-');
         var id = 'id_' + name;
-        $(this).attr({'name': name, 'id': id}).val('').removeAttr('checked');
+        $(this).attr({'name': name, 'id': id}).val('');
+        if ($(this).attr('type') === 'checkbox') {
+          $(this).removeAttr('value');
+        }
     });
     total++;
     $('#id_' + prefix + '-TOTAL_FORMS').val(total);
