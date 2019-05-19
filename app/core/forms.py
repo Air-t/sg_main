@@ -1,14 +1,14 @@
 from django import forms
 from django.utils.translation import gettext_lazy as _
-from django.forms import formset_factory, modelformset_factory
+from django.forms import formset_factory, modelformset_factory, inlineformset_factory
 
 from .models import Exam, OpenQuestion, CloseQuestion, CloseChoice, UserExam
-
 
 CHOICES = (
     (False, 'No'),
     (True, 'Yes'),
 )
+
 
 class ExamForm(forms.ModelForm):
     """Form to create new Exam instance"""
@@ -40,14 +40,12 @@ class OpenQuestionForm(forms.ModelForm):
         widgets = {
             'question': forms.TextInput(attrs={'placeholder': _('Exam question goes here.'),
                                                'error_messages': _('This question already exists.'),
-                                               'class': 'form-control',
                                                }),
             'max_points': forms.NumberInput(attrs={
                 'class': 'w-25',
                 'min': 1,
                 'required': True,
             })
-
         }
 
 
@@ -67,8 +65,8 @@ class CloseQuestionForm(forms.ModelForm):
         }
         widgets = {
             'question': forms.TextInput(attrs={'placeholder': _('Question goes here.'),
-                                              'error_messages': _('This question already exists.'),
-                                              }),
+                                               'error_messages': _('This question already exists.'),
+                                               }),
             'max_points': forms.NumberInput(attrs={
                 'min': 1,
 
@@ -95,6 +93,13 @@ CloseChoiceFormset = modelformset_factory(
     }
 )
 
+CloseChoiceInlineFormset = inlineformset_factory(CloseQuestion, CloseChoice,
+                                                 extra=3,
+                                                 fields=('choice', 'is_true'),
+                                                 labels={
+                                                     'choice': '',
+                                                 })
+
 
 class AssignExamToUserForm(forms.ModelForm):
     """Form to assign user to a given exam"""
@@ -106,7 +111,7 @@ class AssignExamToUserForm(forms.ModelForm):
 
 class FeedbackForm(forms.Form):
     """Form to handle users feedback"""
-    comment = forms.CharField(widget=forms.Textarea(attrs={'cols': 40, 'rows': 5}), required=True, label='')
-    email = forms.EmailField(required=True, label='')
-
-
+    comment = forms.CharField(widget=forms.Textarea(attrs={'cols': 40,
+                                                           'rows': 5,
+                                                           'placeholder': 'Your comment.'}), required=True, label='')
+    email = forms.EmailField(required=True, label='', help_text="Email field")

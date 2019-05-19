@@ -31,13 +31,16 @@
 </div>
 
 <div class="row">
-  <div class="col-sm">
+  <div class="col-lg-6 col-md-12 col-sm-12">
 
     {% if object.openquestion_set.all %}
       <div class="card card-shadow">
+        <div class="card-header">
+          <strong>Open question list</strong>
+        </div>
         <ul class="list-group">
           {% for question in object.openquestion_set.all %}
-            <a class="list-group-item d-flex justify-content-between align-items-center" href="">{{ question.question }}
+            <a class="list-group-item d-flex justify-content-between align-items-center" href="{% url 'core:exam-edit-open' id=exam.id pk=question.id %}">{{ question.question }}
               <span>
                 <span class="badge badge-primary badge-pill">{{ question.max_points }}</span>
                 <form class="form-inline" method="post" action="{% url 'core:exam-delete-open' id=object.id pk=question.id %}" style="display:inline!important;">
@@ -53,12 +56,15 @@
 
   </div>
 
-  <div class="col-sm">
+  <div class="col-lg-6 col-md-12 col-sm-12">
     {% if object.closequestion_set.all %}
       <div class="card card-shadow">
+        <div class="card-header">
+          <strong>Close question list</strong>
+        </div>
         <ul class="list-group">
           {% for question in object.closequestion_set.all %}
-            <a class="list-group-item d-flex justify-content-between align-items-center" href="">
+            <a class="list-group-item d-flex justify-content-between align-items-center" href="{% url 'core:exam-edit-close' id=exam.id pk=question.id %}">
               {{ question.question }}
               <form class="form-inline" method="post" action="{% url 'core:exam-delete-close' id=object.id pk=question.id %}">
                 {% csrf_token %}
@@ -73,6 +79,8 @@
       </div>
     {% endif %}
   </div>
+
+
 </div>
 
 {% endblock content %}

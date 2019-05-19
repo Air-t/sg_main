@@ -17,15 +17,29 @@ $(function(){
     if (el.name) el.name = el.name.replace(id_regex, replacement);
 }
 function cloneMore(selector, prefix) {
+    var addButtons = $('.add-form-row').each(function(e){
+      $(this).children().first().attr('src', '/static/webfonts/minus-circle-solid.svg')
+    })
     var newElement = $(selector).clone(true);
     var total = $('#id_' + prefix + '-TOTAL_FORMS').val();
     newElement.find(':input:not([type=button]):not([type=submit]):not([type=reset]):not([name=csrfmiddlewaretoken]):not([type=button])').each(function() {
         var name = $(this).attr('name').replace('-' + (total-1) + '-', '-' + total + '-');
         var id = 'id_' + name;
+
         $(this).attr({'name': name, 'id': id}).val('');
         if ($(this).attr('type') === 'checkbox') {
           $(this).removeAttr('value');
+          $(this).prop("checked", false);
         }
+
+        // if ($(this).attr('type') === 'hidden') {
+        //   console.log('here');
+        //   $(this).attr({'name': name, 'id': id});
+        // } else if ($(this).attr('type') === 'checkbox') {
+        //   $(this).removeAttr('value');
+        // } else {
+        //   $(this).attr('{'name': name, 'id': id}').val('');
+        // }
     });
     total++;
     $('#id_' + prefix + '-TOTAL_FORMS').val(total);
@@ -34,7 +48,8 @@ function cloneMore(selector, prefix) {
     conditionRow.find('.btn.add-form-row')
     .removeClass('btn-secondary').addClass('btn-danger')
     .removeClass('add-form-row').addClass('remove-form-row')
-    conditionRow.find('img').first().attr('src', '/static/webfonts/minus-circle-solid.svg')
+    // conditionRow.find('img').first().attr('src', '/static/webfonts/minus-circle-solid.svg')
+    var lastRow = $('.form-row:last').find('img').attr('src', '/static/webfonts/plus-circle-solid.svg')
 
     return false;
 }

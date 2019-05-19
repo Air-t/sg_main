@@ -1,0 +1,33 @@
+{% extends "layout.html" %}
+{% block content %}
+{% load crispy_forms_tags %}
+{% load static %}
+
+<div id="first-question" class="card card-shadow">
+  <ul class="list-group">
+      <li class="list-group-item d-flex justify-content-between align-items-center"><strong>Open Question | <span class="text-muted">close question creator</span></strong></li>
+  </ul>
+</div>
+
+<form class="card card-shadow" method="POST">
+  {% csrf_token %}
+  {{ formset.management_form|crispy }}
+  <div class="card-body">
+    <div class="form-row d-flex justify-content-between" style="margin-top:20px; margin-right:0px;">
+      <div class="col">
+        {{ form.question|as_crispy_field }}
+      </div>
+      <div class="d-flex flex-row justify-content-end">
+        <div class="d-2">
+          {{ form.max_points|as_crispy_field }}
+        </div>
+        <div class="d-2">
+          <button type="submit" class="btn btn-primary"><img class="light" src="{% static 'webfonts/save-regular.svg' %}" width="20" height="20"> Save</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</form>
+
+
+{% endblock content %}
