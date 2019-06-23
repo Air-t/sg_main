@@ -1,8 +1,9 @@
 from django import forms
+from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django.forms import formset_factory, modelformset_factory, inlineformset_factory
 
-from .models import Exam, OpenQuestion, CloseQuestion, CloseChoice, UserExam
+from .models import Exam, OpenQuestion, CloseQuestion, CloseChoice, UserExam, Invitation
 
 CHOICES = (
     (False, 'No'),
@@ -115,3 +116,10 @@ class FeedbackForm(forms.Form):
                                                            'rows': 5,
                                                            'placeholder': 'Your comment.'}), required=True, label='')
     email = forms.EmailField(required=True, label='', help_text="Email field")
+
+
+class InviteToExamForm(forms.Form):
+    """Form to invite users to exam"""
+
+    email = forms.EmailField(label='')
+

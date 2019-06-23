@@ -13,7 +13,7 @@
   {% csrf_token %}
   {{ formset.management_form|crispy }}
   <div class="card-body">
-    <div class="form-row d-flex justify-content-between" style="margin-top:20px; margin-right:0px;">
+    <div class="form-row d-flex justify-content-between">
       <div class="col">
         {{ form.question|as_crispy_field }}
       </div>

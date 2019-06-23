@@ -8,6 +8,12 @@ $(function(){
     return (x) ? true : e.preventDefault()
   })
 
+  // confirm delete on click while deleting objects
+  $('div.card').on('click', '.proceed', function(e){
+    var x = confirm("Are you sure you want to proceed?");
+    return (x) ? true : e.preventDefault()
+  })
+
 
   function updateElementIndex(el, prefix, ndx) {
     var id_regex = new RegExp('(' + prefix + '-\\d+)');
@@ -77,5 +83,6 @@ $(document).on('click', '.remove-form-row', function(e){
     deleteForm('form', $(this));
     return false;
 });
+
 
 })

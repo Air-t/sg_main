@@ -1,0 +1,35 @@
+{% extends "layout.html" %}
+{% block content %}
+{% load crispy_forms_tags %}
+{% load static %}
+
+<div id="first-question" class="card card-shadow">
+  <ul class="list-group">
+      <li class="list-group-item d-flex justify-content-between align-items-center"><strong>{{ exam.name }} |  <span class="text-muted">invite for exam</span></strong>
+        <span>
+          <button id="open-question"class="btn btn-primary tab" name="action" value="delete" type="submit" form="close-question-form"><img class="light" src="{% static 'webfonts/user-plus-solid.svg' %}" width="20" height="20"> Invite</button>
+        </span>
+      </li>
+  </ul>
+</div>
+
+<form class="card card-shadow" method="POST">
+  {% csrf_token %}
+  <div class="card-body">
+    <div class="form-row d-flex justify-content-between" style="margin-top:20px; margin-right:0px;">
+      <div class="d-flex flex-row justify-content-start">
+        <div class="d-2">
+          {{ form.email|as_crispy_field }}
+        </div>
+      </div>
+      <div class="d-flex flex-row justify-content-end">
+        <div class="d-2">
+          <button type="submit" class="btn btn-primary"><img class="light" src="{% static 'webfonts/save-regular.svg' %}" width="20" height="20"> Invite</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</form>
+
+
+{% endblock content %}

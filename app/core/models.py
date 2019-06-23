@@ -16,6 +16,7 @@ class Exam(models.Model):
     name = models.CharField(unique=True, max_length=128)
     teacher = models.ForeignKey(User, on_delete=models.CASCADE, blank=False)
     is_evaluated = models.BooleanField(default=False)
+    exam_minutes = models.IntegerField(default=30)
 
     def __str__(self):
         return self.name
@@ -61,7 +62,7 @@ class CloseQuestion(models.Model):
 
 class CloseChoice(models.Model):
     choice = models.CharField(max_length=256)
-    is_true = models.BooleanField()
+    is_true = models.BooleanField(default=False)
     close_question = models.ForeignKey(CloseQuestion, on_delete=models.CASCADE)
 
 
@@ -69,8 +70,32 @@ class CloseChoice(models.Model):
         return self.choice
 
 
+class CloseAnswer(models.Model):
+    """Cloce question answer model"""
+    close_question = models.ForeignKey(CloseQuestion, on_delete=models.CASCADE)
+    answer = models.ForeignKey(CloseChoice, on_delete=models.CASCADE)
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    is_correct = models.BooleanField()
+
+    def __str__(self):
+        return f"{self.user.username}: {self.is_correct}"
+
+
+class Invitation(models.Model):
+    """Infite to exam by email or direct user"""
+    exam = models.ForeignKey(Exam, on_delete=models.CASCADE, blank=True)
+    email = models.EmailField(blank=True)
+    data_created = models.DateTimeField(auto_now_add=True)
+    is_active = models.BooleanField(default=True)
+
+    def __str__(self):
+        return f"{self.email}: {self.is_active}"
+
+
 class UserExam(models.Model):
+    """"""
     note = models.IntegerField(choices=NOTE_CHOICES, blank=True)
+    score = models.IntegerField()
     student = models.OneToOneField(User, on_delete=models.CASCADE)
     exams = models.ManyToManyField(Exam)
 

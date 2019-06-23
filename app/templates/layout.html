@@ -38,13 +38,14 @@
         <div id="mySidenav" class="sidenav">
           <a href="{% url 'core:exams' %}">Exams</a>
           <a href="#">Invite</a>
+          <a href="#">Make Available</a>
           <a href="#">Groups</a>
         </div>
       </div>
     {% elif request.user.is_student %}
       <div class="navbar">
         <div id="mySidenav" class="sidenav">
-          <a href="#">Exams</a>
+          <a href="{% url 'core:student-exams' %}">Exams</a>
           <a href="#">Schedule</a>
           <a href="#">Grades</a>
         </div>

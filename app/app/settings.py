@@ -1,4 +1,9 @@
 import os
+import env_file
+
+
+# load additional environment variable from file
+env = env_file.get(path='.env')
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -7,7 +12,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/2.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '%w_uhu*rdkehnbesbgbgn4#o_(a!7b5n7946rep04@d39*z(n#'
+SECRET_KEY = env.get('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -67,19 +72,13 @@ WSGI_APPLICATION = 'app.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'examapp',
-        'HOST': 'localhost',
-        'USER': 'postgres',
-        'PASSWORD': 'coderslab',
+        'NAME': env.get('DATABASE_NAME'),
+        'HOST': env.get('DATABASE_HOST'),
+        'USER': env.get('DATABASE_USER'),
+        'PASSWORD': env.get('DATABASE_PASSWORD'),
     }
 }
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-#     }
-# }
 
 # DOCKER COMPOSE SETUP
 
@@ -164,7 +163,11 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_USE_TLS = True
 EMAIL_PORT = 587
 EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_HOST_USER = 'artur.pietracha1@gmail.com'
-EMAIL_HOST_PASSWORD = 'G0nz0!@#'
-SERVER_EMAIL = 'artur.pietracha1@gmail.com'
-DEFAULT_FROM_EMAIL = "artur.pietracha1@gmail.com"
+EMAIL_HOST_USER = env.get('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = env.get('EMAIL_HOST_PASSWORD')
+SERVER_EMAIL = env.get('SERVER_EMAIL')
+DEFAULT_FROM_EMAIL = env.get('DEFAULT_FROM_EMAIL')
+
+TIME_INPUT_FORMATS = [
+    '%H:%M'
+]

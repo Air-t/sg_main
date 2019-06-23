@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.views.generic.base import View
-from django.views.generic.edit import CreateView, UpdateView
+from django.views.generic.edit import CreateView, UpdateView, FormView
 from django.views.generic.detail import DetailView
 from django.views.generic.list import ListView
 from django.core.mail import send_mail
@@ -11,8 +11,8 @@ from django.urls import reverse_lazy
 from django.forms import inlineformset_factory
 
 from .forms import ExamForm, FeedbackForm, OpenQuestionFormset, CloseChoiceFormset, CloseQuestionForm, OpenQuestionForm
-from .forms import CloseChoiceInlineFormset
-from .models import Exam, CloseChoice, OpenQuestion, CloseQuestion
+from .forms import CloseChoiceInlineFormset, InviteToExamForm
+from .models import Exam, CloseChoice, OpenQuestion, CloseQuestion, Invitation
 from .mixins import LoginRequiredOwnerMixin, LoginRequiredStudentMixin
 
 app_name = 'core'
@@ -224,51 +224,65 @@ class FeedbackView(View):
             return render(request, 'core/info/leave_feedback.html', {'form': FeedbackForm()})
 
 
-class StudentView(LoginRequiredStudentMixin, UserPassesTestMixin, View):
+class InviteToExamView(LoginRequiredOwnerMixin, UserPassesTestMixin, View):
+    """View to handle user invitation form"""
+
+    def get(self, request, pk):
+        exam = get_object_or_404(Exam, pk=pk)
+        return render(request, 'core/teacher/invite.html', {'form': InviteToExamForm(), 'exam': exam})
+
+    def post(self, request, pk):
+        exam = get_object_or_404(Exam, pk=pk)
+        form = InviteToExamForm(request.POST)
+
+        if form.is_valid():
+            invitation = Invitation(email=form.data['email'], exam=exam)
+            try:
+                invitation.save()
+            except Exception as e:
+                return redirect('core:exam', pk=pk)
+
+            send_mail('Exapp - exam invitation',
+                      f"Hello! \n"
+                      f"An {Exam.objects.get(pk=pk).name} exam is waiting for you. \n"
+                      f"Please head over exam app page {self.request.build_absolute_uri('/exams/')} \n"
+                      f"and reqister. In 'Exam' section you will find all available exams. \n",
+                      settings.DEFAULT_FROM_EMAIL,
+                      [form.cleaned_data.get('email')],
+                      fail_silently=False,
+                      )
+            messages.success(self.request, f"Infitation to {form.cleaned_data.get('email')} sent.")
+        return redirect('core:exam', pk=pk)
+
+
+# STUDENT section --------------------------------------------------------------------------------------------------
+
+class StudentView(View):
     """Handles exam view"""
 
     def get(self, request):
         return render(request, 'core/student/student.html', {})
 
 
-# class ExamUpdateCloseView(LoginRequiredOwnerMixin, UserPassesTestMixin, View):
-#     """View to update colse question set"""
-#
-#     def get(self, request, id, pk):
-#         exam = get_object_or_404(Exam, id=id)
-#         question = exam.closequestion_set.get(pk=pk)
-#         return render(request, 'core/teacher/exam_close.html',
-#                       {'closeform': CloseQuestionForm(instance=question),
-#                        'formset': CloseChoiceFormset(queryset=question.closechoice_set.all()),
-#                        'exam': exam,
-#                        'id': id,
-#                        'pk': pk,
-#                        })
-#
-#     def post(self, request, id, pk):
-#         exam = get_object_or_404(Exam, id=id)
-#         question = exam.closequestion_set.get(pk=pk)
-#
-#         question.closechoice_set.filter(close_question=question).delete()
-#         closeform = CloseQuestionForm(request.POST, instance=question)
-#         formset = CloseChoiceFormset(request.POST)
-#         if closeform.is_valid() and formset.is_valid():
-#             close_question = closeform.save(commit=False)
-#             close_question.exam = exam
-#             close_question.save()
-#             for form in formset:
-#                 choice = form.save(commit=False)
-#                 choice.close_question = close_question
-#                 try:
-#                     choice.save()
-#                 except Exception:
-#                     return render(request, 'core/teacher/exam_details.html', {'formset': formset,
-#                                                                               'exam': exam,
-#                                                                               'students': exam.userexam_set.all(),
-#                                                                               'models': exam.openquestion_set.all(),
-#                                                                               'id': id})
-#             messages.success(request, 'Exam questions added.')
-#             return redirect('core:exam', pk=id)
-#         else:
-#             messages.warning(request, 'Fail to add question.')
-#             return redirect('core:exam', pk=id)
+class StudentExamsView(LoginRequiredStudentMixin, UserPassesTestMixin, ListView):
+    """Handles student exams list view"""
+    model = Exam
+    template_name = 'core/student/student_exams.html'
+
+    def get_queryset(self):
+        return Exam.objects.all().filter(invitation__email=self.request.user.email)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        return context
+
+
+class StudentExamInvitation(LoginRequiredStudentMixin, UserPassesTestMixin, DetailView):
+    """Handles user invitation view"""
+
+    def get_queryset(self):
+        return Exam.objects.filter(invitation__email=self.request.user.email).select_related()
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        return context
