@@ -1,7 +1,5 @@
 $(function(){
 
-  console.log('jolo');
-
   // confirm delete on click while deleting objects
   $('div.card').on('click', '.delete', function(e){
     var x = confirm("Are you sure you want to delete?");
@@ -83,6 +81,8 @@ $(document).on('click', '.remove-form-row', function(e){
     deleteForm('form', $(this));
     return false;
 });
+
+
 
 
 })

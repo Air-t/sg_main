@@ -13,12 +13,15 @@
           <form class="form-inline" method="GET" action="{% url 'core:exam-add-close' id=exam.id %}" style="display:inline!important;">
             <button class="btn btn-secondary btn-sm tab" name="submit" value="close" type="submit"><img class="light"  src="{% static 'webfonts/door-closed-solid.svg' %}" width="20" height="20"></button>
           </form>
-          <form class="form-inline" method="post" action="{% url 'core:exam-delete' id=exam.id %}" style="display:inline!important;">
-            {% csrf_token %}
-            <button class="btn btn-secondary btn-sm tab delete" name="delete" value="delete" type="submit"><img class="light"  src="{% static 'webfonts/trash-restore-solid.svg' %}" width="20" height="20"></button>
-          </form>
           <form class="form-inline" method="GET" action="{% url 'core:exam-invite' pk=exam.id %}" style="display:inline!important;">
             <button class="btn btn-secondary btn-sm tab" type="submit"><img class="light" src="{% static 'webfonts/user-plus-solid.svg' %}" width="20" height="20"></button>
+          </form>
+          <form class="form-inline" method="GET" action="{% url 'core:exam-invitations' id=exam.id %}" style="display:inline!important;">
+            <button class="btn btn-secondary btn-sm tab" type="submit"><img class="light" src="{% static 'webfonts/users-solid.svg' %}" width="20" height="20"></button>
+          </form>
+          <form class="form-inline" method="post" action="{% url 'core:exam-delete' id=exam.id %}" style="display:inline!important;">
+            {% csrf_token %}
+            <button class="btn btn-danger btn-sm tab delete" name="delete" value="delete" type="submit"><img class="light"  src="{% static 'webfonts/trash-restore-solid.svg' %}" width="20" height="20"></button>
           </form>
         </span>
       </li>

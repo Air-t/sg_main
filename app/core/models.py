@@ -65,7 +65,6 @@ class CloseChoice(models.Model):
     is_true = models.BooleanField(default=False)
     close_question = models.ForeignKey(CloseQuestion, on_delete=models.CASCADE)
 
-
     def __str__(self):
         return self.choice
 
@@ -82,11 +81,19 @@ class CloseAnswer(models.Model):
 
 
 class Invitation(models.Model):
-    """Infite to exam by email or direct user"""
+    """Invite to exam by email or direct user"""
     exam = models.ForeignKey(Exam, on_delete=models.CASCADE, blank=True)
-    email = models.EmailField(blank=True)
-    data_created = models.DateTimeField(auto_now_add=True)
+    email = models.EmailField()
+
+    date_created = models.DateTimeField(auto_now_add=True)
+    date_started = models.DateTimeField(blank=True, null=True)
+    date_expired = models.DateTimeField(blank=True, null=True)
     is_active = models.BooleanField(default=True)
+    is_in_progress = models.BooleanField(default=False)
+    is_passed = models.BooleanField(default=False)
+
+    class Meta:
+        unique_together = ['exam', 'email']
 
     def __str__(self):
         return f"{self.email}: {self.is_active}"

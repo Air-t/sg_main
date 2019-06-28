@@ -1,0 +1,42 @@
+{% extends "layout.html" %}
+{% block content %}
+{% load crispy_forms_tags %}
+{% load static %}
+
+<div id="first-question" class="card card-shadow">
+  <ul class="list-group">
+      <li class="list-group-item d-flex justify-content-between align-items-center"><strong>{{ exam.name }} |  <span class="text-muted">invitation list</span></strong>
+        <span>
+          <button class="btn btn-primary btn-sm" onclick="window.history.back();"><img class="light" src="{% static 'webfonts/undo-alt-solid.svg' %}" width="20" height="20"></button>
+        </span>
+      </li>
+  </ul>
+</div>
+
+<div class="card card-shadow">
+  <div class="card-header">
+    Invitation available
+  </div>
+  <ul class="list-group">
+    {% if exam.invitation_set.all %}
+      {% for invitation in exam.invitation_set.all %}
+        <a class="list-group-item d-flex justify-content-between align-items-center" href="{% url 'core:exam-invitation' id=exam.id pk=invitation.id %}">{{ invitation.email }}
+          <span>
+
+          </span>
+        </a>
+      {% endfor %}
+    {% else %}
+      <li class="list-group-item d-flex justify-content-between align-items-center">No invitation sent yet.
+        <span>
+          <form class="form-inline" method="GET" action="{% url 'core:exam-invite' pk=exam.id %}" style="display:inline!important;">
+            <button class="btn btn-secondary btn-sm tab" type="submit"><img class="light" src="{% static 'webfonts/user-plus-solid.svg' %}" width="20" height="20"></button>
+          </form>
+        </span>
+      </li>
+    {% endif %}
+  </ul>
+</div>
+
+
+{% endblock content %}

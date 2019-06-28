@@ -1,0 +1,27 @@
+{% extends "layout.html" %}
+{% block content %}
+{% load crispy_forms_tags %}
+{% load static %}
+
+<div id="first-question" class="card card-shadow">
+  <ul class="list-group">
+      <li class="list-group-item d-flex justify-content-between align-items-center"><strong>Invitation ({{ invitation.email }}) | <span class="text-muted">update</span></strong>
+        <span>
+          <button type="submit" form="invitation-form" class="btn btn-sm btn-primary tab"><img class="light" src="{% static 'webfonts/save-regular.svg' %}" width="20" height="20"> Save</button>
+          <button class="btn btn-primary btn-sm tab" onclick="window.history.back();"><img class="light" src="{% static 'webfonts/undo-alt-solid.svg' %}" width="20" height="20"></button>
+        </span>
+      </li>
+  </ul>
+</div>
+
+<form class="card card-shadow" id="invitation-form" method="POST">
+  {% csrf_token %}
+  <div class="card-body">
+    <div class="justify-content-between align-items-center">
+      {{ form.is_active|as_crispy_field }}
+    </div>
+  </div>
+</form>
+
+
+{% endblock content %}

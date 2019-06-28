@@ -48,7 +48,7 @@ class LoginView(View):
             if request.user.is_teacher:
                 return redirect('core:exams')
             if request.user.is_student:
-                return redirect('core:student')
+                return redirect('core:student-exams')
             return redirect('user:home')
         messages.warning(request, 'Failed to login. Please provide valid credentials.')
         return redirect('user:login')

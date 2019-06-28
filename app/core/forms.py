@@ -120,6 +120,20 @@ class FeedbackForm(forms.Form):
 
 class InviteToExamForm(forms.Form):
     """Form to invite users to exam"""
+    email = forms.EmailField(required=True, label='', widget=forms.EmailInput(attrs={
+        'placeholder': 'Email goes here'
+    }))
 
-    email = forms.EmailField(label='')
+
+class InvitationUpdateForm(forms.ModelForm):
+    """Form to create single open question instance"""
+    is_active = forms.CheckboxInput()
+
+    class Meta:
+        model = Invitation
+        fields = ['is_active']
+        labels = {
+            'is_active': '',
+        }
+
 

@@ -11,7 +11,7 @@ from django.urls import reverse_lazy
 from django.forms import inlineformset_factory
 
 from .forms import ExamForm, FeedbackForm, OpenQuestionFormset, CloseChoiceFormset, CloseQuestionForm, OpenQuestionForm
-from .forms import CloseChoiceInlineFormset, InviteToExamForm
+from .forms import CloseChoiceInlineFormset, InviteToExamForm, InvitationUpdateForm
 from .models import Exam, CloseChoice, OpenQuestion, CloseQuestion, Invitation
 from .mixins import LoginRequiredOwnerMixin, LoginRequiredStudentMixin
 
@@ -24,7 +24,7 @@ class ExamsView(LoginRequiredOwnerMixin, UserPassesTestMixin, ListView):
     template_name = 'core/teacher/exams.html'
 
     def get_queryset(self):
-        return Exam.objects.all().filter(teacher=self.request.user)
+        return Exam.objects.all().filter(teacher=self.request.user).order_by('name')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -240,8 +240,11 @@ class InviteToExamView(LoginRequiredOwnerMixin, UserPassesTestMixin, View):
             try:
                 invitation.save()
             except Exception as e:
+                print(e)
+                messages.warning(self.request, f"Fail to invite: {form.cleaned_data.get('email')}.")
                 return redirect('core:exam', pk=pk)
 
+            # TODO once created - update absolute path to /exams/available/
             send_mail('Exapp - exam invitation',
                       f"Hello! \n"
                       f"An {Exam.objects.get(pk=pk).name} exam is waiting for you. \n"
@@ -251,8 +254,35 @@ class InviteToExamView(LoginRequiredOwnerMixin, UserPassesTestMixin, View):
                       [form.cleaned_data.get('email')],
                       fail_silently=False,
                       )
-            messages.success(self.request, f"Infitation to {form.cleaned_data.get('email')} sent.")
+            messages.success(self.request, f"Invitation to {form.cleaned_data.get('email')} sent.")
         return redirect('core:exam', pk=pk)
+
+
+class ExamInvitationsView(LoginRequiredOwnerMixin, UserPassesTestMixin, View):
+    """Handles exam invitation list view"""
+
+    def get(self, request, id):
+        exam = get_object_or_404(Exam, pk=id)
+        return render(request, 'core/teacher/exam_invitations.html', {'exam': exam})
+
+
+class ExamInvitationView(LoginRequiredOwnerMixin, UserPassesTestMixin, View):
+    def get(self, request, id, pk):
+        invitation = get_object_or_404(Invitation, pk=pk)
+        return render(request, 'core/teacher/exam_invitation_edit.html',
+                      {'form': InvitationUpdateForm(instance=invitation), 'invitation': invitation})
+
+    def post(self, request, id, pk):
+        invitation = get_object_or_404(Invitation, pk=pk)
+        form = InvitationUpdateForm(data=request.POST, instance=invitation)
+        if form.is_valid():
+            form.save()
+            return redirect('core:exam', pk=id)
+        else:
+            return render(request, 'core/teacher/exam_open_edit.html', {'form': OpenQuestionForm(instance=invitation),
+                                                                        'invitation': invitation,
+                                                                        'id': id,
+                                                                        'pk': pk})
 
 
 # STUDENT section --------------------------------------------------------------------------------------------------
@@ -270,11 +300,29 @@ class StudentExamsView(LoginRequiredStudentMixin, UserPassesTestMixin, ListView)
     template_name = 'core/student/student_exams.html'
 
     def get_queryset(self):
-        return Exam.objects.all().filter(invitation__email=self.request.user.email)
+        return Exam.objects.all().filter(invitation__email=self.request.user.email, invitation__is_active=True)
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        return context
+
+class StudentExamView(LoginRequiredOwnerMixin, UserPassesTestMixin, DetailView):
+    """Handles single exam view for student/user"""
+
+    model = Exam
+    template_name = 'core/student/student_exam.html'
+
+    def get_queryset(self):
+        return Exam.objects.filter(teacher=self.request.user).select_related()
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 class StudentExamInvitation(LoginRequiredStudentMixin, UserPassesTestMixin, DetailView):

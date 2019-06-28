@@ -9,20 +9,22 @@
   </ul>
 </div>
 
-{% if object_list %}
-  <div class="card card-shadow">
-    <ul class="list-group">
+<div class="card card-shadow">
+  <ul class="list-group">
+    {% if object_list %}
       {% for exam in object_list %}
-        <a class="list-group-item d-flex justify-content-between align-items-center" href="">{{ exam.name }}
-          <form class="form-inline" method="POST" action="" style="display:inline!important;">
-            {% csrf_token %}
-            <button class="btn btn-secondary btn-sm tab proceed" type="submit"><img class="light" src="{% static 'webfonts/file-signature-solid.svg' %}" width="20" height="20"></button>
-          </form>
-        </a>
+        <li class="list-group-item d-flex justify-content-between align-items-center" href="">{{ exam.name }} | created by: {{ exam.teacher }} | {{ exam.exam_minutes }} min.
+          <span>
+            <form class="form-inline" method="POST" action="" style="display:inline!important;">
+              <button class="btn btn-secondary btn-sm tab proceed" type="submit"><img class="light" src="{% static 'webfonts/file-signature-solid.svg' %}" width="20" height="20"> Start</button>
+            </form>
+          </span>
+        </li>
       {% endfor %}
-    </ul>
-  </div>
-{% endif %}
-
+    {% else %}
+      <li class="list-group-item d-flex justify-content-between align-items-center">No Exams passed.</li>
+    {% endif %}
+  </ul>
+</div>
 
 {% endblock content %}
