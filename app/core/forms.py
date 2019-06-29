@@ -16,14 +16,21 @@ class ExamForm(forms.ModelForm):
 
     class Meta:
         model = Exam
-        fields = ['name']
+        fields = ['name', 'exam_minutes']
         labels = {
             'name': '',
+            'exam_minutes': '',
         }
         widgets = {
-            'name': forms.TextInput(attrs={'placeholder': _('Exam title goes here.'),
-                                           'error_messages': _('This exam already exists.'),
-                                           }),
+            'name': forms.TextInput(attrs={
+                'placeholder': _('Exam title goes here.'),
+                'error_messages': _('This exam already exists.'),
+            }),
+            'exam_minutes': forms.NumberInput(attrs={
+                'placeholder': _('Exam duration in minutes'),
+                'error_messages': _('This field must be positive'),
+                'min': '1',
+            })
         }
 
 
@@ -135,5 +142,3 @@ class InvitationUpdateForm(forms.ModelForm):
         labels = {
             'is_active': '',
         }
-
-

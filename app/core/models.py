@@ -87,6 +87,7 @@ class Invitation(models.Model):
 
     date_created = models.DateTimeField(auto_now_add=True)
     date_started = models.DateTimeField(blank=True, null=True)
+    date_ended = models.DateTimeField(blank=True, null=True)
     date_expired = models.DateTimeField(blank=True, null=True)
     is_active = models.BooleanField(default=True)
     is_in_progress = models.BooleanField(default=False)

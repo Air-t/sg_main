@@ -1,3 +1,5 @@
+from datetime import datetime, timedelta, timezone
+
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth.mixins import UserPassesTestMixin
@@ -296,11 +298,11 @@ class StudentView(View):
 
 class StudentExamsView(LoginRequiredStudentMixin, UserPassesTestMixin, ListView):
     """Handles student exams list view"""
-    model = Exam
+    model = Invitation
     template_name = 'core/student/student_exams.html'
 
     def get_queryset(self):
-        return Exam.objects.all().filter(invitation__email=self.request.user.email, invitation__is_active=True)
+        return Invitation.objects.all().filter(email=self.request.user.email, is_active=True).select_related()
 
 
 class StudentExamView(LoginRequiredOwnerMixin, UserPassesTestMixin, DetailView):
@@ -313,16 +315,56 @@ class StudentExamView(LoginRequiredOwnerMixin, UserPassesTestMixin, DetailView):
         return Exam.objects.filter(teacher=self.request.user).select_related()
 
 
+class PassExamView(LoginRequiredStudentMixin, UserPassesTestMixin, View):
+    """Handles user exam progress view"""
 
+    def get(self, request, pk):
+        """"""
 
+    def post(self, request, pk):
+        invitation = get_object_or_404(Invitation, pk=pk)
+        exam = invitation.exam
+        now = datetime.now(timezone.utc)
 
+        if invitation.is_passed:
+            messages.info(request, 'This exam is finished.')
+            return redirect('core:student-exams')
 
+        if invitation.is_in_progress:
+            """"""
+        else:
+            expire = now + timedelta(minutes=exam.exam_minutes)
+            invitation.is_in_progress = True
+            invitation.date_started = now
+            invitation.date_expired = expire
+            invitation.save()
 
+        # calculates remaining seconds to the exam finish
+        seconds = (invitation.date_expired - now).seconds
 
+        return render(request,
+                      'core/student/pass_exam.html',
+                      {'invitation': invitation,
+                       'exam': exam,
+                       'seconds': seconds,
+                       })
 
+class FinishExamView(LoginRequiredStudentMixin, UserPassesTestMixin, View):
+    """Handles finish of exam view"""
+    def post(self, request, pk):
+        invitation = get_object_or_404(Invitation, pk=pk)
+        exam = invitation.exam
 
+        invitation.is_in_progress = False
+        invitation.is_passed = True
+        invitation.date_ended = datetime.now()
+        invitation.save()
 
-
+        return render(request,
+                      'core/student/finish_exam.html',
+                      {'invitation': invitation,
+                       'exam': exam,
+                       })
 
 
 class StudentExamInvitation(LoginRequiredStudentMixin, UserPassesTestMixin, DetailView):
