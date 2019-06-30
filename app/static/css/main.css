@@ -16,6 +16,14 @@ body a{
   background-color: rgba(133, 20, 75, 0.7);
 }
 
+.bg-light-green {
+  background-color: rgba(217, 255, 179, 1);
+}
+
+.bg-light-blue {
+  background-color: rgb(204, 242, 255, 1);
+}
+
 .card-shadow {
   box-shadow: 5px 10px 8px #888888;
 }

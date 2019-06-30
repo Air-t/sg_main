@@ -10,7 +10,7 @@
           <button class="btn btn-primary btn-sm" onclick="window.history.back();"><img class="light" src="{% static 'webfonts/undo-alt-solid.svg' %}" width="20" height="20"></button>
           <form class="form-inline" method="POST" action="{% url 'core:student-exam-finish' pk=invitation.id %}" style="display:inline!important;">
             {% csrf_token %}
-            <button class="btn btn-secondary btn-sm tab proceed" type="submit"><img class="light" src="{% static 'webfonts/flag.svg' %}" width="20" height="20"></button>
+            <button class="btn btn-secondary btn-sm tab proceed" type="submit"><i class="fas fa-flag-checkered"></i></button>
           </form>
           <form class="form-inline" method="POST" action="{% url 'core:student-exam-finish' pk=invitation.id %}" style="display:inline!important;">
             {% csrf_token %}
@@ -21,25 +21,35 @@
   </ul>
 </div>
 
-{% if object_list %}
-  <div class="card card-shadow">
-    <div class="card-header">
-      Exams available
-    </div>
-    <ul class="list-group">
-      {% for exam in object_list %}
-        <a class="list-group-item d-flex justify-content-between align-items-center" href="{% url 'core:exam' pk=exam.id %}">{{ exam.name }}
-          <span>
-            <form class="form-inline" method="post" action="{% url 'core:exam-delete' id=exam.id %}" style="display:inline!important;">
-              {% csrf_token %}
-              <button class="btn btn-secondary btn-sm tab delete" name="delete" value="delete" type="submit"><img class="light" src="{% static 'webfonts/trash-restore-solid.svg' %}" width="20" height="20"></button>
-            </form>
-          </span>
-        </a>
-      {% endfor %}
-    </ul>
+{% if question %}
+<div class="card card-shadow">
+  <div class="card-header d-flex justify-content-between align-items-center">
+    <span>
+      <strong>{{ question.question }} | </strong>Points: [ {{ question.max_points }} ]
+    </span>
+    <span>
+      <button form="answer_form" class="btn btn-primary btn-sm tab" name="answer" value="submit" type="submit"><i class="far fa-save"></i> Save</button>
+    </span>
   </div>
+  <ul class="list-group">
+    <form id="answer_form" method="POST" action="" style="display:inline!important;">
+      {% csrf_token %}
+      {% for choice in question.closechoice_set.all %}
+      <li id="li_{{ choice.id }}" class="list-group-item d-flex justify-content-between align-items-center" href="">{{ choice.choice }}
+        <input hidden type="checkbox" id="choice_{{ choice.id }}" name="choice_{{ choice.id }}">
+        <input hidden type="text" id="id_{{ choice.id }}" name="id_{{ choice.id }}" value="{{ choice.id }}">
+      </li>
+      {% endfor %}
+    </form>
+  </ul>
+</div>
+
 {% endif %}
+
+
+
+
+
 
 <!-- this hidden element holds actual number of seconds required to set -->
 <!-- countdown timer properly -->

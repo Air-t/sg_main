@@ -21,6 +21,10 @@ class Exam(models.Model):
     def __str__(self):
         return self.name
 
+    @property
+    def close_question_number(self):
+        return self.closequestion_set.all().count()
+
 
 class OpenQuestion(models.Model):
     question = models.CharField(unique=True, max_length=256, blank=False)
@@ -45,7 +49,7 @@ class OpenAnswer(models.Model):
 
 
 class CloseQuestion(models.Model):
-    question = models.CharField(unique=True, max_length=256)
+    question = models.CharField(max_length=256)
     exam = models.ForeignKey(Exam, on_delete=models.CASCADE, blank=True, null=True)
     max_points = models.IntegerField(default=1)
 
@@ -74,7 +78,7 @@ class CloseAnswer(models.Model):
     close_question = models.ForeignKey(CloseQuestion, on_delete=models.CASCADE)
     answer = models.ForeignKey(CloseChoice, on_delete=models.CASCADE)
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    is_correct = models.BooleanField()
+    is_correct = models.BooleanField(blank=True, default=False)
 
     def __str__(self):
         return f"{self.user.username}: {self.is_correct}"

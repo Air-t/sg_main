@@ -82,7 +82,33 @@ $(document).on('click', '.remove-form-row', function(e){
     return false;
 });
 
-
-
+// exam process utils
+var answer_form = $('#answer_form').on('click', 'li', function(e){
+  e.preventDefault()
+  var li = $(e.target)
+  li.toggleClass( 'bg-light-green');
+  var input = li.children('input').first()
+  if (input.prop("checked") == true) {
+    input.prop("checked", false);
+    console.log('is field checked: NO');
+  } else {
+      input.prop("checked", true);
+      console.log('is field checked: YES');
+  }
+})
 
 })
+
+// var answer_form = $('#answer_form').on('click', 'button', function(e){
+//   e.preventDefault()
+//   var btn = $(e.target)
+//   btn.parent().parent().toggleClass( 'bg-light-green');
+//   var input = btn.next('input')
+//   if (input.prop("checked") == true) {
+//     input.prop("checked", false);
+//     console.log('is field checked: NO');
+//   } else {
+//       input.prop("checked", true);
+//       console.log('is field checked: YES');
+//   }
+// })

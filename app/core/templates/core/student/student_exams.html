@@ -13,14 +13,27 @@
   <ul class="list-group">
     {% if object_list %}
       {% for invitation in object_list %}
-        <li class="list-group-item d-flex justify-content-between align-items-center">{{ invitation.exam.name }} | created by: {{ invitation.exam.teacher }} | {{ invitation.exam.exam_minutes }} min.
-          <span>
-            <form class="form-inline" method="POST" action="{% url 'core:student-exam-progress' pk=invitation.id %}" style="display:inline!important;">
-              {% csrf_token %}
-              <button class="btn btn-secondary btn-sm tab proceed" type="submit"><img class="light" src="{% static 'webfonts/file-signature-solid.svg' %}" width="20" height="20"> Start</button>
-            </form>
-          </span>
-        </li>
+        {% if invitation.is_passed != True %}
+          <li class="list-group-item d-flex justify-content-between align-items-center">{{ invitation.exam.name }} | created by: {{ invitation.exam.teacher }} | {{ invitation.exam.exam_minutes }} min.
+            <span>
+              <span class="badge badge-info badge-pill">{{ invitation.exam.close_question_number }}</span>
+              <form class="form-inline" method="POST" action="{% url 'core:student-exam-progress' pk=invitation.id %}" style="display:inline!important;">
+                {% csrf_token %}
+                <button class="btn btn-secondary btn-sm tab proceed" type="submit"><i class="fas fa-file-signature"></i> Start</button>
+              </form>
+            </span>
+          </li>
+        {% else %}
+          <li class="list-group-item d-flex justify-content-between align-items-center bg-light-blue">{{ invitation.exam.name }} | created by: {{ invitation.exam.teacher }} | {{ invitation.exam.exam_minutes }} min.
+            <span>
+              <span class="badge badge-info badge-pill">{{ invitation.exam.close_question_number }}</span>
+              <form class="form-inline" method="POST" action="" style="display:inline!important;">
+                {% csrf_token %}
+                <button class="btn btn-secondary btn-sm tab" type="submit"><i class="fas fa-medal"></i> Stats</button>
+              </form>
+            </span>
+          </li>
+        {% endif %}
       {% endfor %}
     {% else %}
       <li class="list-group-item d-flex justify-content-between align-items-center">No Exams passed.</li>

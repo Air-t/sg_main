@@ -147,12 +147,14 @@ class ExamAddCloseView(LoginRequiredOwnerMixin, UserPassesTestMixin, View):
         exam = get_object_or_404(Exam, id=id)
         closeform = CloseQuestionForm(request.POST)
         formset = CloseChoiceFormset(request.POST)
-        print(closeform.is_valid())
-        print(formset.is_valid())
         if closeform.is_valid() and formset.is_valid():
             close_question = closeform.save(commit=False)
             close_question.exam = exam
-            close_question.save()
+            try:
+                close_question.save()
+            except Exception as e:
+                messages.warning(request, 'This question already exists in this exam.')
+                return redirect('core:exam', pk=id)
             for form in formset:
                 choice = form.save(commit=False)
                 choice.close_question = close_question
@@ -344,11 +346,10 @@ class PassExamView(LoginRequiredStudentMixin, UserPassesTestMixin, View):
     def post(self, request, pk):
         invitation = get_object_or_404(Invitation, pk=pk)
         exam = invitation.exam
+        # TODO timezone to be taken from app.settings
         now = datetime.now(timezone.utc)
 
-        if invitation.is_passed:
-            messages.info(request, 'This exam is finished.')
-            return redirect('core:student-exams')
+        question = exam.closequestion_set.first()
 
         if invitation.is_in_progress:
             """"""
@@ -359,6 +360,12 @@ class PassExamView(LoginRequiredStudentMixin, UserPassesTestMixin, View):
             invitation.date_expired = expire
             invitation.save()
 
+        if invitation.date_expired < now:
+            invitation.is_passed = True
+        if invitation.is_passed:
+            messages.info(request, 'This exam is finished.')
+            return redirect('core:student-exams')
+
         # calculates remaining seconds to the exam finish
         seconds = (invitation.date_expired - now).seconds
 
@@ -367,6 +374,7 @@ class PassExamView(LoginRequiredStudentMixin, UserPassesTestMixin, View):
                       {'invitation': invitation,
                        'exam': exam,
                        'seconds': seconds,
+                       'question': question,
                        })
 
 
