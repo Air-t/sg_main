@@ -1,7 +1,7 @@
-from django.contrib.auth.mixins import AccessMixin
+from django.contrib.auth.mixins import AccessMixin, UserPassesTestMixin
 from django.shortcuts import redirect
 
-from .models import Exam
+from .models import Exam, Invitation
 
 
 def is_in_owner_group(user):
@@ -45,7 +45,7 @@ class LoginRequiredStudentMixin(AccessMixin):
 class LoginRequiredOwnerCreatorMixin(AccessMixin):
     def get_login_url(self):
         if self.request.user:
-            return super(LoginRequiredOwnerMixin, self).get_login_url()
+            return super(LoginRequiredOwnerCreatorMixin, self).get_login_url()
         return redirect('core:exams')
 
     def test_func(self):

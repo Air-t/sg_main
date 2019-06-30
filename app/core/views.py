@@ -318,8 +318,28 @@ class StudentExamView(LoginRequiredOwnerMixin, UserPassesTestMixin, DetailView):
 class PassExamView(LoginRequiredStudentMixin, UserPassesTestMixin, View):
     """Handles user exam progress view"""
 
+    def test_func(self):
+        """Check if user is allowed to write the exam"""
+        return self.request.user.email == Invitation.objects.get(pk=self.kwargs['pk']).email
+
     def get(self, request, pk):
-        """"""
+        invitation = get_object_or_404(Invitation, pk=pk)
+        exam = invitation.exam
+        now = datetime.now(timezone.utc)
+        seconds = (invitation.date_expired - now).seconds
+
+        if invitation.date_expired < now:
+            invitation.is_passed = True
+        if invitation.is_passed:
+            messages.info(request, 'This exam is finished.')
+            return redirect('core:student-exams')
+
+        return render(request,
+                      'core/student/pass_exam.html',
+                      {'invitation': invitation,
+                       'exam': exam,
+                       'seconds': seconds,
+                       })
 
     def post(self, request, pk):
         invitation = get_object_or_404(Invitation, pk=pk)
@@ -349,8 +369,10 @@ class PassExamView(LoginRequiredStudentMixin, UserPassesTestMixin, View):
                        'seconds': seconds,
                        })
 
+
 class FinishExamView(LoginRequiredStudentMixin, UserPassesTestMixin, View):
     """Handles finish of exam view"""
+
     def post(self, request, pk):
         invitation = get_object_or_404(Invitation, pk=pk)
         exam = invitation.exam
