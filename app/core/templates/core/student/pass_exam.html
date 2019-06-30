@@ -7,7 +7,20 @@
   <ul class="list-group">
       <li class="list-group-item d-flex justify-content-between align-items-center"><strong>{{ exam.name }} | <span class="text-muted" id="timer"></span></strong>
         <span>
-          <button class="btn btn-primary btn-sm" onclick="window.history.back();"><img class="light" src="{% static 'webfonts/undo-alt-solid.svg' %}" width="20" height="20"></button>
+
+          {% if previous %}
+            <form class="form-inline" method="POST" action="{% url 'core:student-exam-progress' pk=invitation.id id=previous %}" style="display:inline!important;">
+              {% csrf_token %}
+              <button class="btn btn-primary btn-sm tab" type="submit"><i class="fas fa-caret-left"></i></button>
+            </form>
+          {% endif %}
+          {% if next %}
+            <form class="form-inline" method="POST" action="{% url 'core:student-exam-progress' pk=invitation.id id=next %}" style="display:inline!important;">
+              {% csrf_token %}
+              <button class="btn btn-primary btn-sm" type="submit"><i class="fas fa-caret-right"></i></button>
+            </form>
+          {% endif %}
+
           <form class="form-inline" method="POST" action="{% url 'core:student-exam-finish' pk=invitation.id %}" style="display:inline!important;">
             {% csrf_token %}
             <button class="btn btn-secondary btn-sm tab proceed" type="submit"><i class="fas fa-flag-checkered"></i></button>

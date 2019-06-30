@@ -27,7 +27,7 @@ urlpatterns = [
     path('user/', StudentView.as_view(), name='student'),
     path('user/exams/', StudentExamsView.as_view(), name='student-exams'),
     path('user/exam/<int:pk>/', StudentExamView.as_view(), name='student-exam'),
-    path('user/exam/progress/<int:pk>/', PassExamView.as_view(), name='student-exam-progress'),
+    path('user/exam/progress/<int:pk>/<int:id>/', PassExamView.as_view(), name='student-exam-progress'),
     path('user/exam/finish/<int:pk>/', FinishExamView.as_view(), name='student-exam-finish'),
     path('user/invitation/<int:pk>/', StudentExamInvitation.as_view(), name='student-exam-invitation')
 ]

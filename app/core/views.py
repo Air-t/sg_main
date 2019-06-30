@@ -324,11 +324,23 @@ class PassExamView(LoginRequiredStudentMixin, UserPassesTestMixin, View):
         """Check if user is allowed to write the exam"""
         return self.request.user.email == Invitation.objects.get(pk=self.kwargs['pk']).email
 
-    def get(self, request, pk):
+    def get(self, request, pk, id):
         invitation = get_object_or_404(Invitation, pk=pk)
         exam = invitation.exam
         now = datetime.now(timezone.utc)
         seconds = (invitation.date_expired - now).seconds
+
+        questions = exam.closequestion_set.all()
+        question = questions[id - 1]
+
+        if id == 1:
+            previous_question = None
+        else:
+            previous_question = id - 1
+        if id >= questions.count():
+            next_question = None
+        else:
+            next_question = id + 1
 
         if invitation.date_expired < now:
             invitation.is_passed = True
@@ -341,19 +353,30 @@ class PassExamView(LoginRequiredStudentMixin, UserPassesTestMixin, View):
                       {'invitation': invitation,
                        'exam': exam,
                        'seconds': seconds,
+                       'question': question,
+                       'previous': previous_question,
+                       'next': next_question,
                        })
 
-    def post(self, request, pk):
+    def post(self, request, pk, id):
         invitation = get_object_or_404(Invitation, pk=pk)
         exam = invitation.exam
         # TODO timezone to be taken from app.settings
         now = datetime.now(timezone.utc)
 
-        question = exam.closequestion_set.first()
+        questions = exam.closequestion_set.all()
+        question = questions[id - 1]
 
-        if invitation.is_in_progress:
-            """"""
+        if id == 1:
+            previous_question = None
         else:
+            previous_question = id - 1
+        if id >= questions.count():
+            next_question = None
+        else:
+            next_question = id + 1
+
+        if not invitation.is_in_progress:
             expire = now + timedelta(minutes=exam.exam_minutes)
             invitation.is_in_progress = True
             invitation.date_started = now
@@ -375,6 +398,8 @@ class PassExamView(LoginRequiredStudentMixin, UserPassesTestMixin, View):
                        'exam': exam,
                        'seconds': seconds,
                        'question': question,
+                       'previous': previous_question,
+                       'next': next_question,
                        })
 
 
