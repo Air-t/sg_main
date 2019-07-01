@@ -75,13 +75,13 @@ class CloseChoice(models.Model):
 
 class CloseAnswer(models.Model):
     """Cloce question answer model"""
-    close_question = models.ForeignKey(CloseQuestion, on_delete=models.CASCADE)
-    answer = models.ForeignKey(CloseChoice, on_delete=models.CASCADE)
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-    is_correct = models.BooleanField(blank=True, default=False)
+    # close_question = models.ForeignKey(CloseQuestion, on_delete=models.CASCADE)
+    choice = models.ForeignKey(CloseChoice, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    is_correct = models.BooleanField(blank=True, default=True)
 
     def __str__(self):
-        return f"{self.user.username}: {self.is_correct}"
+        return f"{self.user.username}: {self.choice.choice} {self.is_correct}"
 
 
 class Invitation(models.Model):

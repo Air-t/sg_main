@@ -10,11 +10,12 @@ from django.views.generic.list import ListView
 from django.core.mail import send_mail
 from django.conf import settings
 from django.urls import reverse_lazy
+from django.http import Http404
 from django.forms import inlineformset_factory
 
 from .forms import ExamForm, FeedbackForm, OpenQuestionFormset, CloseChoiceFormset, CloseQuestionForm, OpenQuestionForm
 from .forms import CloseChoiceInlineFormset, InviteToExamForm, InvitationUpdateForm
-from .models import Exam, CloseChoice, OpenQuestion, CloseQuestion, Invitation
+from .models import Exam, CloseChoice, OpenQuestion, CloseQuestion, Invitation, CloseAnswer
 from .mixins import LoginRequiredOwnerMixin, LoginRequiredStudentMixin
 
 app_name = 'core'
@@ -331,8 +332,19 @@ class PassExamView(LoginRequiredStudentMixin, UserPassesTestMixin, View):
         seconds = (invitation.date_expired - now).seconds
 
         questions = exam.closequestion_set.all()
-        question = questions[id - 1]
+        question_count = questions.count()
+        if id not in range(1, question_count):
+            raise Http404
+        else:
+            question = questions[id - 1]
 
+        if invitation.date_expired < now:
+            invitation.is_passed = True
+        if invitation.is_passed:
+            messages.info(request, 'This exam is finished.')
+            return redirect('core:student-exams')
+
+        # this section handles view navigation buttons visible on html page
         if id == 1:
             previous_question = None
         else:
@@ -342,12 +354,6 @@ class PassExamView(LoginRequiredStudentMixin, UserPassesTestMixin, View):
         else:
             next_question = id + 1
 
-        if invitation.date_expired < now:
-            invitation.is_passed = True
-        if invitation.is_passed:
-            messages.info(request, 'This exam is finished.')
-            return redirect('core:student-exams')
-
         return render(request,
                       'core/student/pass_exam.html',
                       {'invitation': invitation,
@@ -356,6 +362,8 @@ class PassExamView(LoginRequiredStudentMixin, UserPassesTestMixin, View):
                        'question': question,
                        'previous': previous_question,
                        'next': next_question,
+                       'question_count': question_count,
+                       'id': id,
                        })
 
     def post(self, request, pk, id):
@@ -366,7 +374,23 @@ class PassExamView(LoginRequiredStudentMixin, UserPassesTestMixin, View):
 
         questions = exam.closequestion_set.all()
         question = questions[id - 1]
+        question_count = questions.count()
 
+        if not invitation.is_in_progress:
+            expire = now + timedelta(minutes=exam.exam_minutes)
+            invitation.is_in_progress = True
+            invitation.date_started = now
+            invitation.date_expired = expire
+            invitation.save()
+
+        # prevents entering finished exam/invitation
+        if invitation.date_expired < now:
+            invitation.is_passed = True
+        if invitation.is_passed:
+            messages.info(request, 'This exam is finished.')
+            return redirect('core:student-exams')
+
+        # this section handles view navigation buttons visible on html page
         if id == 1:
             previous_question = None
         else:
@@ -376,21 +400,35 @@ class PassExamView(LoginRequiredStudentMixin, UserPassesTestMixin, View):
         else:
             next_question = id + 1
 
-        if not invitation.is_in_progress:
-            expire = now + timedelta(minutes=exam.exam_minutes)
-            invitation.is_in_progress = True
-            invitation.date_started = now
-            invitation.date_expired = expire
-            invitation.save()
-
-        if invitation.date_expired < now:
-            invitation.is_passed = True
-        if invitation.is_passed:
-            messages.info(request, 'This exam is finished.')
-            return redirect('core:student-exams')
-
         # calculates remaining seconds to the exam finish
         seconds = (invitation.date_expired - now).seconds
+
+        # save user question answer logic
+        if request.POST.get('answer') is not None:
+            user = request.user
+
+            # delete all user answers from current question
+            user_choices = CloseAnswer.objects.all() \
+                .filter(user=user, choice__close_question_id=int(request.POST.get('question_id')))
+            if user_choices:
+                try:
+                    user_choices.delete()
+                except Exception as e:
+                    print('deleting models:\n')
+                    print(e)
+            print(request.POST)
+
+            # asign new user answers for current question
+            for key in request.POST.keys():
+                if key in ['csrfmiddlewaretoken', 'answer', 'question_id']:
+                    pass
+                else:
+                    try:
+                        choice_id = int(key)
+                        choice_answer = CloseAnswer.objects.create(choice_id=choice_id, user=user)
+                        choice_answer.save()
+                    except Exception as e:
+                        print(e)
 
         return render(request,
                       'core/student/pass_exam.html',
@@ -400,6 +438,8 @@ class PassExamView(LoginRequiredStudentMixin, UserPassesTestMixin, View):
                        'question': question,
                        'previous': previous_question,
                        'next': next_question,
+                       'question_count': question_count,
+                       'id': id,
                        })
 
 
