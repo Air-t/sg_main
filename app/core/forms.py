@@ -16,10 +16,11 @@ class ExamForm(forms.ModelForm):
 
     class Meta:
         model = Exam
-        fields = ['name', 'exam_minutes']
+        fields = ['name', 'exam_minutes', 'pass_percentage']
         labels = {
             'name': '',
             'exam_minutes': '',
+            'pass_percentage': '',
         }
         widgets = {
             'name': forms.TextInput(attrs={
@@ -27,10 +28,17 @@ class ExamForm(forms.ModelForm):
                 'error_messages': _('This exam already exists.'),
             }),
             'exam_minutes': forms.NumberInput(attrs={
-                'placeholder': _('Exam duration in minutes'),
-                'error_messages': _('This field must be positive'),
+                'placeholder': _('Exam duration in minutes.'),
+                'error_messages': _('This field must be positive.'),
                 'min': '1',
-            })
+            }),
+            'pass_percentage': forms.NumberInput(attrs={
+                'placeholder': _('Correct answer percentage to pass the exam.'),
+                'error_messages': _('This exam already exists.'),
+                'min': '0',
+                'max': '100',
+                'step': '1',
+            }),
         }
 
 

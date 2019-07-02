@@ -24,12 +24,12 @@
           {% if request.user.username %}
             <form method="post" style="display:inline!important;" action="{% url 'user:logout' %}">
               {% csrf_token %}
-              <button class="btn btn-outline-secondary" name="action" value="logout" type="submit"><img class="light" src="{% static 'webfonts/sign-out-alt-solid.svg' %}" alt="[X]" width="24" height="24"></button>
+              <button class="btn btn-link" name="action" value="logout" type="submit"><img class="light" src="{% static 'webfonts/sign-out-alt-solid.svg' %}" alt="[X]" width="24" height="24"></button>
             </form>
             <a class="navbar-brand" href="{% url 'user:user' %}"><img class="light" src="{% static 'webfonts/user-regular.svg' %}" alt="" width="24" height="24"> {{ request.user.username }}</a>
           {% else %}
+            <a class="navbar-brand" href="{% url 'user:login' %}"><img class="light" src="{% static 'webfonts/sign-in-alt-solid.svg' %}" alt="[X]" width="24" height="24"></a>
             <a class="navbar-brand" href="{% url 'user:signup' %}">Signup</a>
-            <a class="navbar-brand" href="{% url 'user:login' %}">Login</a>
           {% endif %}
         </div>
     </nav>

@@ -15,8 +15,8 @@ NOTE_CHOICES = (
 class Exam(models.Model):
     name = models.CharField(unique=True, max_length=128)
     teacher = models.ForeignKey(User, on_delete=models.CASCADE, blank=False)
-    is_evaluated = models.BooleanField(default=False)
-    exam_minutes = models.IntegerField(default=30)
+    exam_minutes = models.IntegerField(blank=False)
+    pass_percentage = models.IntegerField(blank=False)
 
     def __str__(self):
         return self.name

@@ -325,63 +325,13 @@ class PassExamView(LoginRequiredStudentMixin, UserPassesTestMixin, View):
         """Check if user is allowed to write the exam"""
         return self.request.user.email == Invitation.objects.get(pk=self.kwargs['pk']).email
 
-    def get(self, request, pk, id):
-        invitation = get_object_or_404(Invitation, pk=pk)
-        exam = invitation.exam
-        now = datetime.now(timezone.utc)
-        seconds = (invitation.date_expired - now).seconds
-
-        questions = exam.closequestion_set.all()
-        question_count = questions.count()
-        if id not in range(1, question_count):
-            raise Http404
-        else:
-            question = questions[id - 1]
-
-        if invitation.date_expired < now:
-            invitation.is_passed = True
-        if invitation.is_passed:
-            messages.info(request, 'This exam is finished.')
-            return redirect('core:student-exams')
-
-        # this section handles view navigation buttons visible on html page
-        if id == 1:
-            previous_question = None
-        else:
-            previous_question = id - 1
-        if id >= questions.count():
-            next_question = None
-        else:
-            next_question = id + 1
-
-        return render(request,
-                      'core/student/pass_exam.html',
-                      {'invitation': invitation,
-                       'exam': exam,
-                       'seconds': seconds,
-                       'question': question,
-                       'previous': previous_question,
-                       'next': next_question,
-                       'question_count': question_count,
-                       'id': id,
-                       })
-
     def post(self, request, pk, id):
         invitation = get_object_or_404(Invitation, pk=pk)
-        exam = invitation.exam
+
         # TODO timezone to be taken from app.settings
         now = datetime.now(timezone.utc)
-
-        questions = exam.closequestion_set.all()
-        question = questions[id - 1]
-        question_count = questions.count()
-
-        if not invitation.is_in_progress:
-            expire = now + timedelta(minutes=exam.exam_minutes)
-            invitation.is_in_progress = True
-            invitation.date_started = now
-            invitation.date_expired = expire
-            invitation.save()
+        # calculates remaining seconds to the exam finish
+        seconds = (invitation.date_expired - now).seconds
 
         # prevents entering finished exam/invitation
         if invitation.date_expired < now:
@@ -390,6 +340,21 @@ class PassExamView(LoginRequiredStudentMixin, UserPassesTestMixin, View):
             messages.info(request, 'This exam is finished.')
             return redirect('core:student-exams')
 
+        exam = invitation.exam
+
+        if not invitation.is_in_progress:
+            expire = now + timedelta(minutes=exam.exam_minutes)
+            invitation.is_in_progress = True
+            invitation.date_started = now
+            invitation.date_expired = expire
+            invitation.save()
+
+        questions = exam.closequestion_set.all()
+        question = questions[id - 1]
+        question_count = questions.count()
+
+        choices = []
+
         # this section handles view navigation buttons visible on html page
         if id == 1:
             previous_question = None
@@ -400,30 +365,33 @@ class PassExamView(LoginRequiredStudentMixin, UserPassesTestMixin, View):
         else:
             next_question = id + 1
 
-        # calculates remaining seconds to the exam finish
-        seconds = (invitation.date_expired - now).seconds
+        # get user choice answers to mark them as checked in template view
+        user = request.user
+        user_choices = CloseAnswer.objects.all() \
+            .filter(user=user, choice__close_question_id=question.id).select_related()
+        if user_choices:
+            for choice in user_choices:
+                choices.append(('choice_' + str(choice.choice.id)))
 
         # save user question answer logic
         if request.POST.get('answer') is not None:
-            user = request.user
-
             # delete all user answers from current question
-            user_choices = CloseAnswer.objects.all() \
-                .filter(user=user, choice__close_question_id=int(request.POST.get('question_id')))
             if user_choices:
                 try:
                     user_choices.delete()
                 except Exception as e:
                     print('deleting models:\n')
                     print(e)
-            print(request.POST)
 
-            # asign new user answers for current question
+            # assign new user answers for current question
+            # TODO tricky to do it this way - make it simplier
+            choices.clear()
             for key in request.POST.keys():
                 if key in ['csrfmiddlewaretoken', 'answer', 'question_id']:
                     pass
                 else:
                     try:
+                        choices.append(('choice_' + key))
                         choice_id = int(key)
                         choice_answer = CloseAnswer.objects.create(choice_id=choice_id, user=user)
                         choice_answer.save()
@@ -440,6 +408,7 @@ class PassExamView(LoginRequiredStudentMixin, UserPassesTestMixin, View):
                        'next': next_question,
                        'question_count': question_count,
                        'id': id,
+                       'choices': choices,
                        })
 
 

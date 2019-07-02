@@ -83,17 +83,28 @@ $(document).on('click', '.remove-form-row', function(e){
 });
 
 // exam process utils
+var choices = $('.user_choice')
+if (choices) {
+  $(choices).each(function(){
+    var input = $('#'+$(this).text());
+    input.prop('checked', true);
+    input.parent().addClass('bg-light-green')
+  })
+}
+
+
 var answer_form = $('#answer_form').on('click', 'li', function(e){
   e.preventDefault()
   var li = $(e.target)
-  li.toggleClass( 'bg-light-green');
   var input = li.children('input').first()
   if (input.prop("checked") == true) {
     input.prop("checked", false);
+    li.removeClass('bg-light-green')
     console.log('is field checked: NO');
   } else {
-      input.prop("checked", true);
-      console.log('is field checked: YES');
+    input.prop("checked", true);
+    li.addClass('bg-light-green')
+    console.log('is field checked: YES');
   }
 })
 

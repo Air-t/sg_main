@@ -7,20 +7,20 @@
   <ul class="list-group">
       <li class="list-group-item d-flex justify-content-between align-items-center"><strong>{{ exam.name }} | <span class="text-muted" id="timer"></span></strong>
         <span>
-
           {% if previous %}
             <form class="form-inline" method="POST" action="{% url 'core:student-exam-progress' pk=invitation.id id=previous %}" style="display:inline!important;">
               {% csrf_token %}
+              <input type="hidden" name="question_id" value="{{ question.id }}">
               <button class="btn btn-primary btn-sm tab" type="submit"><i class="fas fa-caret-left"></i></button>
             </form>
           {% endif %}
           {% if next %}
             <form class="form-inline" method="POST" action="{% url 'core:student-exam-progress' pk=invitation.id id=next %}" style="display:inline!important;">
               {% csrf_token %}
+              <input type="hidden" name="question_id" value="{{ question.id }}">
               <button class="btn btn-primary btn-sm" type="submit"><i class="fas fa-caret-right"></i></button>
             </form>
           {% endif %}
-
           <form class="form-inline" method="POST" action="{% url 'core:student-exam-finish' pk=invitation.id %}" style="display:inline!important;">
             {% csrf_token %}
             <button class="btn btn-secondary btn-sm tab proceed" type="submit"><i class="fas fa-flag-checkered"></i></button>
@@ -49,22 +49,23 @@
       {% csrf_token %}
       <input type="hidden" name="question_id" value="{{ question.id }}">
       {% for choice in question.closechoice_set.all %}
-      <li id="li_{{ choice.id }}" class="list-group-item d-flex justify-content-between align-items-center" href="">{{ choice.choice }}
+      <li id="li_{{ choice.id }}" class="list-group-item d-flex justify-content-between align-items-center">{{ choice.choice }}
         <input hidden type="checkbox" id="choice_{{ choice.id }}" name="{{ choice.id }}">
       </li>
       {% endfor %}
     </form>
   </ul>
 </div>
-
 {% endif %}
 
+<!-- this hidden field is required for user choice select process JS -->
+{% if choices %}
+  {% for choice in choices %}
+    <span hidden class='user_choice'>{{ choice }}</span>
+  {% endfor %}
+{% endif %}
 
-
-
-
-
-<!-- this hidden element holds actual number of seconds required to set -->
+<!-- this hidden element holds actual number of seconds required to set JS -->
 <!-- countdown timer properly -->
 <span hidden id="seconds">{{ seconds }}</span>
 
