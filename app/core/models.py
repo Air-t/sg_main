@@ -113,19 +113,12 @@ class UserExam(models.Model):
     """Model to store user exam score"""
     score = models.FloatField(blank=True)
     student = models.ForeignKey(User, on_delete=models.CASCADE)
-    duration = models.DateTimeField(blank=True, null=True)
+    duration_seconds = models.IntegerField(blank=True, null=True)
     exam = models.ForeignKey(Exam, on_delete=models.CASCADE)
     is_passed = models.BooleanField(blank=True)
 
     def __str__(self):
         return f"{self.student.username}: {self.score}/{self.exam.total_close_points}, is passed: {self.is_passed}"
-
-    # def __init__(self, *args, **kwargs):
-    #     super(UserExam, self).__init__()
-    #     if (self.score/self.exam.total_close_points)*100 >= self.exam.pass_percentage:
-    #         self.is_passed = True
-    #     else:
-    #         self.is_passed = False
 
     @property
     def score_close_percentage(self):

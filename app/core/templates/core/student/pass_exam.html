@@ -45,7 +45,7 @@
     </span>
   </div>
   <ul class="list-group">
-    <form id="answer_form" method="POST"style="display:inline!important;" action="{% url 'core:student-exam-progress' pk=exam.id id=id %}">
+    <form id="answer_form" method="POST"style="display:inline!important;" action="{% url 'core:student-exam-progress' pk=invitation.id id=id %}">
       {% csrf_token %}
       <input type="hidden" name="question_id" value="{{ question.id }}">
       {% for choice in question.closechoice_set.all %}

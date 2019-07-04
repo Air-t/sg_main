@@ -17,7 +17,7 @@ from .forms import ExamForm, FeedbackForm, OpenQuestionFormset, CloseChoiceForms
 from .forms import CloseChoiceInlineFormset, InviteToExamForm, InvitationUpdateForm
 from .models import Exam, CloseChoice, OpenQuestion, CloseQuestion, Invitation, CloseAnswer, UserExam
 from .mixins import LoginRequiredOwnerMixin, LoginRequiredStudentMixin
-from .utils import evaluate_exam
+from .utils import get_mins
 from user.models import User
 
 app_name = 'core'
@@ -427,23 +427,58 @@ class FinishExamView(LoginRequiredStudentMixin, UserPassesTestMixin, View):
     def post(self, request, pk):
         invitation = get_object_or_404(Invitation, pk=pk)
         exam = invitation.exam
-        user_id = request.user.id
-        user = User.objects.get(pk=user_id)
+        user = User.objects.get(pk=request.user.id)
+        user_exam = None
 
+        # evalueate exam if possible
         if not invitation.is_evaluated:
-            invitation.is_in_progress = False
-            invitation.is_passed = True
-            invitation.date_ended = datetime.now()
+            if invitation.is_in_progress:
+                invitation.is_in_progress = False
+                invitation.is_passed = True
+                invitation.date_ended = datetime.now(timezone.utc)
+                print(invitation.date_started)
+                print(invitation.date_ended)
+
+                invitation.save()
+
+            print(invitation.date_started)
+            print(invitation.date_ended)
+            user_score = 0
+            questions = exam.closequestion_set.all().select_related()
+            user_choices = CloseChoice.objects.all().filter(close_question__exam=exam).filter(closeanswer__user=user)
+            for question in questions:
+                question_points = question.max_points
+                user_answers = user_choices.filter(close_question=question)
+                valid_choices = question.closechoice_set.all().filter(is_true=True)
+                print(user_answers)
+                print(valid_choices)
+                if set(user_answers) == set(valid_choices):
+                    user_score += question_points
+            if (user_score / exam.total_close_points) * 100 >= exam.pass_percentage:
+                is_passed = True
+                print('passed')
+            else:
+                is_passed = False
+                print('not passed')
+            print(user_score)
+            print("mins")
+            print(get_mins(invitation.date_started, invitation.date_ended))
+            print(int((invitation.date_ended - invitation.date_started).total_seconds() / 60.0))
+            user_exam = UserExam.objects.create(
+                score=user_score,
+                student=user, exam=exam,
+                is_passed=is_passed,
+                duration_seconds=int((invitation.date_ended - invitation.date_started).total_seconds() / 60.0))
             try:
-                user_exam = evaluate_exam(exam, user)
-                invitation.is_evaluated = True
+                user_exam.save()
             except Exception as e:
-                print(e)
-                user_exam = None
-            invitation.save()
+                print('Error saving UserExam')
         else:
             # TODO send email to user with statistics
-            user_exam = UserExam.objects.all().filter(student=user, exams=exam)
+            try:
+                user_exam = UserExam.objects.all().filter(student=user, exams=exam)
+            except Exception as e:
+                print(e)
 
         return render(request,
                       'core/student/finish_exam.html',
