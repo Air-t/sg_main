@@ -15,4 +15,17 @@
   </ul>
 </div>
 
+<div class="card card-shadow">
+  <div class="card-header">
+    <strong>{{ exam.name }} | </strong>statistics
+  </div>
+  <ul class="list-group">
+      <li class="list-group-item d-flex justify-content-between align-items-center">Score: {{ user_exam.score }}/{{ exam.total_close_points }}</li>
+      <li class="list-group-item d-flex justify-content-between align-items-center">Percentage: {{ user_exam.score_close_percentage }}/{{ exam.pass_percentage }}</li>
+      <li class="list-group-item d-flex justify-content-between align-items-center">Duration: {{ user_exam.duration }}</li>
+      <li class="list-group-item d-flex justify-content-between align-items-center">Is passed: {{ user_exam.is_passed }}</li>
+  </ul>
+</div>
+
+
 {% endblock content %}

@@ -24,12 +24,12 @@
             </span>
           </li>
         {% else %}
-          <li class="list-group-item d-flex justify-content-between align-items-center bg-light-blue">{{ invitation.exam.name }} | created by: {{ invitation.exam.teacher }} | {{ invitation.exam.exam_minutes }} min.
+          <li class="list-group-item d-flex justify-content-between align-items-center">{{ invitation.exam.name }} | created by: {{ invitation.exam.teacher }} | {{ invitation.exam.exam_minutes }} min.
             <span>
               <span class="badge badge-info badge-pill">{{ invitation.exam.close_question_number }}</span>
-              <form class="form-inline" method="POST" action="" style="display:inline!important;">
+              <form class="form-inline" method="POST" action="{% url 'core:student-exam-finish' pk=invitation.id %}" style="display:inline!important;">
                 {% csrf_token %}
-                <button class="btn btn-secondary btn-sm tab" type="submit"><i class="fas fa-medal"></i> Stats</button>
+                <button class="btn btn-warning btn-sm tab" type="submit"><i class="fas fa-medal"></i> Stats</button>
               </form>
             </span>
           </li>

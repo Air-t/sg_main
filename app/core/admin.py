@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Exam, OpenQuestion, CloseQuestion, CloseAnswer, CloseChoice, Invitation
+from .models import Exam, OpenQuestion, CloseQuestion, CloseAnswer, CloseChoice, Invitation, UserExam
 from user.models import User
 
 
@@ -10,5 +10,7 @@ admin.site.register(CloseQuestion)
 admin.site.register(CloseChoice)
 admin.site.register(CloseAnswer)
 admin.site.register(Invitation)
+admin.site.register(UserExam)
 admin.site.register(User)
+
 

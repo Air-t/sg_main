@@ -122,7 +122,7 @@ class AssignExamToUserForm(forms.ModelForm):
 
     class Meta:
         model = UserExam
-        fields = ['student', 'exams']
+        fields = ['student', 'exam']
 
 
 class FeedbackForm(forms.Form):

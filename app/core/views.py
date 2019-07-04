@@ -15,8 +15,10 @@ from django.forms import inlineformset_factory
 
 from .forms import ExamForm, FeedbackForm, OpenQuestionFormset, CloseChoiceFormset, CloseQuestionForm, OpenQuestionForm
 from .forms import CloseChoiceInlineFormset, InviteToExamForm, InvitationUpdateForm
-from .models import Exam, CloseChoice, OpenQuestion, CloseQuestion, Invitation, CloseAnswer
+from .models import Exam, CloseChoice, OpenQuestion, CloseQuestion, Invitation, CloseAnswer, UserExam
 from .mixins import LoginRequiredOwnerMixin, LoginRequiredStudentMixin
+from .utils import evaluate_exam
+from user.models import User
 
 app_name = 'core'
 
@@ -323,6 +325,9 @@ class PassExamView(LoginRequiredStudentMixin, UserPassesTestMixin, View):
 
     def test_func(self):
         """Check if user is allowed to write the exam"""
+        print(self.request.user.email)
+        print(Invitation.objects.get(pk=self.kwargs['pk']).email)
+        print(Invitation.objects.get(pk=self.kwargs['pk']))
         return self.request.user.email == Invitation.objects.get(pk=self.kwargs['pk']).email
 
     def post(self, request, pk, id):
@@ -330,15 +335,6 @@ class PassExamView(LoginRequiredStudentMixin, UserPassesTestMixin, View):
 
         # TODO timezone to be taken from app.settings
         now = datetime.now(timezone.utc)
-        # calculates remaining seconds to the exam finish
-        seconds = (invitation.date_expired - now).seconds
-
-        # prevents entering finished exam/invitation
-        if invitation.date_expired < now:
-            invitation.is_passed = True
-        if invitation.is_passed:
-            messages.info(request, 'This exam is finished.')
-            return redirect('core:student-exams')
 
         exam = invitation.exam
 
@@ -348,6 +344,16 @@ class PassExamView(LoginRequiredStudentMixin, UserPassesTestMixin, View):
             invitation.date_started = now
             invitation.date_expired = expire
             invitation.save()
+
+        # calculates remaining seconds to the exam finish
+        seconds = (invitation.date_expired - now).seconds
+
+        # prevents entering finished exam/invitation
+        if invitation.date_expired < now:
+            invitation.is_passed = True
+        if invitation.is_passed:
+            messages.info(request, 'This exam is finished.')
+            return redirect('core:student-exams')
 
         questions = exam.closequestion_set.all()
         question = questions[id - 1]
@@ -397,6 +403,9 @@ class PassExamView(LoginRequiredStudentMixin, UserPassesTestMixin, View):
                         choice_answer.save()
                     except Exception as e:
                         print(e)
+            if id < questions.count():
+                print('here')
+                id += 1
 
         return render(request,
                       'core/student/pass_exam.html',
@@ -418,16 +427,29 @@ class FinishExamView(LoginRequiredStudentMixin, UserPassesTestMixin, View):
     def post(self, request, pk):
         invitation = get_object_or_404(Invitation, pk=pk)
         exam = invitation.exam
+        user_id = request.user.id
+        user = User.objects.get(pk=user_id)
 
-        invitation.is_in_progress = False
-        invitation.is_passed = True
-        invitation.date_ended = datetime.now()
-        invitation.save()
+        if not invitation.is_evaluated:
+            invitation.is_in_progress = False
+            invitation.is_passed = True
+            invitation.date_ended = datetime.now()
+            try:
+                user_exam = evaluate_exam(exam, user)
+                invitation.is_evaluated = True
+            except Exception as e:
+                print(e)
+                user_exam = None
+            invitation.save()
+        else:
+            # TODO send email to user with statistics
+            user_exam = UserExam.objects.all().filter(student=user, exams=exam)
 
         return render(request,
                       'core/student/finish_exam.html',
                       {'invitation': invitation,
                        'exam': exam,
+                       'user_exam': user_exam,
                        })
 
 

@@ -1,5 +1,7 @@
 from django.db import models
 from user.models import User
+from django.db.models import Sum
+
 
 NOTE_CHOICES = (
     (-1, 'Not evaluated'),
@@ -24,6 +26,10 @@ class Exam(models.Model):
     @property
     def close_question_number(self):
         return self.closequestion_set.all().count()
+
+    @property
+    def total_close_points(self):
+        return self.closequestion_set.all().aggregate(Sum('max_points'))['max_points__sum']
 
 
 class OpenQuestion(models.Model):
@@ -75,13 +81,11 @@ class CloseChoice(models.Model):
 
 class CloseAnswer(models.Model):
     """Cloce question answer model"""
-    # close_question = models.ForeignKey(CloseQuestion, on_delete=models.CASCADE)
     choice = models.ForeignKey(CloseChoice, on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    is_correct = models.BooleanField(blank=True, default=True)
 
     def __str__(self):
-        return f"{self.user.username}: {self.choice.choice} {self.is_correct}"
+        return f"{self.user.username}: {self.choice.choice}"
 
 
 class Invitation(models.Model):
@@ -96,6 +100,7 @@ class Invitation(models.Model):
     is_active = models.BooleanField(default=True)
     is_in_progress = models.BooleanField(default=False)
     is_passed = models.BooleanField(default=False)
+    is_evaluated = models.BooleanField(blank=True, default=False)
 
     class Meta:
         unique_together = ['exam', 'email']
@@ -105,11 +110,23 @@ class Invitation(models.Model):
 
 
 class UserExam(models.Model):
-    """"""
-    note = models.IntegerField(choices=NOTE_CHOICES, blank=True)
-    score = models.IntegerField()
-    student = models.OneToOneField(User, on_delete=models.CASCADE)
-    exams = models.ManyToManyField(Exam)
+    """Model to store user exam score"""
+    score = models.FloatField(blank=True)
+    student = models.ForeignKey(User, on_delete=models.CASCADE)
+    duration = models.DateTimeField(blank=True, null=True)
+    exam = models.ForeignKey(Exam, on_delete=models.CASCADE)
+    is_passed = models.BooleanField(blank=True)
 
     def __str__(self):
-        return f"{self.user.last_name}: {self.note}"
+        return f"{self.student.username}: {self.score}/{self.exam.total_close_points}, is passed: {self.is_passed}"
+
+    # def __init__(self, *args, **kwargs):
+    #     super(UserExam, self).__init__()
+    #     if (self.score/self.exam.total_close_points)*100 >= self.exam.pass_percentage:
+    #         self.is_passed = True
+    #     else:
+    #         self.is_passed = False
+
+    @property
+    def score_close_percentage(self):
+        return (self.score/self.exam.total_close_points) * 100
