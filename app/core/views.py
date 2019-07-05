@@ -436,13 +436,8 @@ class FinishExamView(LoginRequiredStudentMixin, UserPassesTestMixin, View):
                 invitation.is_in_progress = False
                 invitation.is_passed = True
                 invitation.date_ended = datetime.now(timezone.utc)
-                print(invitation.date_started)
-                print(invitation.date_ended)
-
                 invitation.save()
 
-            print(invitation.date_started)
-            print(invitation.date_ended)
             user_score = 0
             questions = exam.closequestion_set.all().select_related()
             user_choices = CloseChoice.objects.all().filter(close_question__exam=exam).filter(closeanswer__user=user)
@@ -450,20 +445,17 @@ class FinishExamView(LoginRequiredStudentMixin, UserPassesTestMixin, View):
                 question_points = question.max_points
                 user_answers = user_choices.filter(close_question=question)
                 valid_choices = question.closechoice_set.all().filter(is_true=True)
-                print(user_answers)
-                print(valid_choices)
+                # evaluate if user answers match question valid choices
                 if set(user_answers) == set(valid_choices):
                     user_score += question_points
             if (user_score / exam.total_close_points) * 100 >= exam.pass_percentage:
                 is_passed = True
-                print('passed')
+                messages.success(request, f"Congratulations! You have passed the exam! Your score is: "
+                                          f"{user_score}/{exam.total_close_points}.")
             else:
                 is_passed = False
-                print('not passed')
-            print(user_score)
-            print("mins")
-            print(get_mins(invitation.date_started, invitation.date_ended))
-            print(int((invitation.date_ended - invitation.date_started).total_seconds() / 60.0))
+                messages.debug(request, f"You have failed! You did not passed the exam! Your score is: "
+                                        f"{user_score}/{exam.total_close_points}.")
             user_exam = UserExam.objects.create(
                 score=user_score,
                 student=user, exam=exam,

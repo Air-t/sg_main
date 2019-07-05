@@ -33,32 +33,27 @@
           {% endif %}
         </div>
     </nav>
-
     {% if request.user.is_teacher %}
       <div class="navbar">
         <div id="mySidenav" class="sidenav">
           <a href="{% url 'core:exams' %}">Exams</a>
-          <a href="#">Invite</a>
-          <a href="#">Make Available</a>
           <a href="#">Groups</a>
+          <hr>
+          <a href="{% url 'contact' %}"><img class="icon" src="{% static 'webfonts/address-book-regular.svg' %}" alt="[C]" width="20" height="20">  Contact</a>
+          <a href="{% url 'feedback' %}"><img class="icon" src="{% static 'webfonts/file-signature-solid.svg' %}" alt="[F]" width="20" height="20">  Feedback</a>
+          <a href="{% url 'about' %}"><img class="icon" src="{% static 'webfonts/info-circle-solid.svg' %}" alt="[I]" width="20" height="20">  About</a>
         </div>
       </div>
     {% elif request.user.is_student %}
       <div class="navbar">
         <div id="mySidenav" class="sidenav">
           <a href="{% url 'core:student-exams' %}">Exams</a>
-          <a href="#">Schedule</a>
-          <a href="#">Grades</a>
+          <hr>
+          <a href="{% url 'contact' %}"><img class="icon" src="{% static 'webfonts/address-book-regular.svg' %}" alt="[C]" width="20" height="20">  Contact</a>
+          <a href="{% url 'feedback' %}"><img class="icon" src="{% static 'webfonts/file-signature-solid.svg' %}" alt="[F]" width="20" height="20">  Feedback</a>
+          <a href="{% url 'about' %}"><img class="icon" src="{% static 'webfonts/info-circle-solid.svg' %}" alt="[I]" width="20" height="20">  About</a>
         </div>
       </div>
-    {% else %}
-    <div class="navbar">
-      <div id="mySidenav" class="sidenav">
-        <a href="{% url 'contact' %}"><img class="icon" src="{% static 'webfonts/address-book-regular.svg' %}" alt="[C]" width="20" height="20">  Contact</a>
-        <a href="{% url 'feedback' %}"><img class="icon" src="{% static 'webfonts/file-signature-solid.svg' %}" alt="[F]" width="20" height="20">  Feedback</a>
-        <a href="{% url 'about' %}"><img class="icon" src="{% static 'webfonts/info-circle-solid.svg' %}" alt="[I]" width="20" height="20">  About</a>
-      </div>
-    </div>
     {% endif %}
 
     <!-- Add all page content inside this div if you want the side nav to push page content to the right (not used if you only want the sidenav to sit on top of the page -->

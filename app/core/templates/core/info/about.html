@@ -2,10 +2,54 @@
 {% block content %}
 {% load crispy_forms_tags %}
 
-<div class="card text-center card-shadow">
+<div class="card card-shadow">
   <div class="card-body">
-    <h2 class="card-title">Welcome!</h2>
-    <p class="card-text">This a page dedicated for online test assessment.</p>
+    <h2 class="card-title">Info</h2>
+    <p class="card-text" align="justify">
+      Exam application allows user with owner permisions to create test template.
+      All CRUD operations are available to manage exams. Owner can prepare exam,
+      which may be composed of two types of questions - Close and Open one.
+      Based on user anser, questions are evaluated as follows:
+      Close questions are evaluated instantly once exam is passed.
+      Close questions may are multi choice.
+      Score is assigned to user who chooses all valid choices for a single question.
+      Partially valid answers are evaluated as 0 points of all available within question.
+      Open questions need owner action to be evaluated.
+      Owner is responsible to invirte students via email.
+      Clients need to be signed in with the same email address as one sent with
+      invitation. Once is done, students may take one try to pass the exam.
+      Exams has their own time within they need to be finished. Countdown timer begins
+      ticking when client starts the exam. User may finish the exam, clicking finish button,
+      or exam will automaticly finish once time is up.
+      Based on given user answers, exam is evaluated and simple statistics are prepared.
+    </p>
+  </div>
+</div>
+
+<div class="card card-shadow">
+  <div class="card-body">
+    <h2 class="card-title">Features</h2>
+    <p class="card-text">Registration and account management system.</p>
+    <p class="card-text">CRUD operations for exams.</p>
+    <p class="card-text">Owner and Student roles available</p>
+
+    <p class="card-text">Close questions.</p>
+    <p class="card-text">Open questions.</p>
+    <p class="card-text">Automatic exam evaluation.</p>
+    <p class="card-text">Exam email invitation system.</p>
+    <hr>
+    <h2 class="card-title">Not implemented yet</h2>
+    <p class="card-text">In future all reqitered users will gain owner and student permissions at once.</p>
+    <p class="card-text">Exams may be marked as private or public.</p>
+    <p class="card-text">All users will gain right to create and pass the exam</p>
+    <p class="card-text">Markdown format will be available to ease creation of questions</p>
+  </div>
+</div>
+
+<div class="card card-shadow">
+  <div class="card-body">
+    <h2 class="card-title">Created by</h2>
+    <p class="card-text">Artur Pietracha</p>
   </div>
 </div>
 

@@ -20,11 +20,9 @@ $(document).ready(function() {
     btn.addEventListener('click', function(e){
       console.log(clickState);
       if (clickState == 0) {
-        console.log('here');
         openNav();
         clickState = 1;
       } else {
-        console.log('there');
         closeNav();
         clickState = 0;
       }
