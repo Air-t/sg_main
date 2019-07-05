@@ -7,7 +7,6 @@ django-extensions==2.1.6
 django-heroku==0.3.1
 django-rest-framework==0.1.0
 djangorestframework==3.9.2
-env-file==2019.4.13
 Faker==1.0.4
 graphviz==0.10.1
 gunicorn==19.9.0
