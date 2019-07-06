@@ -4,6 +4,7 @@ import env_file
 import django_heroku
 
 # load additional environment variable from file
+env_file.load()
 env = env_file.get(path='.env')
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
