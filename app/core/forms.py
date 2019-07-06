@@ -1,5 +1,4 @@
 from django import forms
-from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django.forms import formset_factory, modelformset_factory, inlineformset_factory
 
