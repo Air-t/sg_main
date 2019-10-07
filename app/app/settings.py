@@ -1,12 +1,5 @@
 import os
 
-import env_file
-import django_heroku
-
-# load additional environment variable from file
-env_file.load()
-env = env_file.get(path='.env')
-
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -74,13 +67,12 @@ WSGI_APPLICATION = 'app.wsgi.application'
 # DATABASES = {
 #     'default': {
 #         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': env.get('DATABASE_NAME'),
-#         'HOST': env.get('DATABASE_HOST'),
-#         'USER': env.get('DATABASE_USER'),
-#         'PASSWORD': env.get('DATABASE_PASSWORD'),
+#         'NAME': 'examapp',
+#         'HOST': 'localhost',
+#         'USER': 'postgres',
+#         'PASSWORD': 'coderslab',
 #     }
 # }
-
 
 DATABASES = {
     'default': {
@@ -154,17 +146,12 @@ AUTH_USER_MODEL = 'user.User'
 
 LOGIN_URL = 'user:login'
 
+
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_USE_TLS = True
 EMAIL_PORT = 587
 EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_HOST_USER = env.get('EMAIL_HOST_USER')
-EMAIL_HOST_PASSWORD = env.get('EMAIL_HOST_PASSWORD')
-SERVER_EMAIL = env.get('SERVER_EMAIL')
-DEFAULT_FROM_EMAIL = env.get('DEFAULT_FROM_EMAIL')
-
-TIME_INPUT_FORMATS = [
-    '%H:%M'
-]
-
-django_heroku.settings(locals())
+EMAIL_HOST_USER = 'artur.pietracha1@gmail.com'
+EMAIL_HOST_PASSWORD = 'G0nz0!@#'
+SERVER_EMAIL = 'artur.pietracha1@gmail.com'
+DEFAULT_FROM_EMAIL = "artur.pietracha1@gmail.com"
