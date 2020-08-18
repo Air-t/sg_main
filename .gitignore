@@ -270,3 +270,4 @@ app/.idea/*
 **/migrations/**
 sendgrid.env
 
+*.env
