@@ -6,27 +6,21 @@ services:
       context: .
     ports:
       - "8000:8000"
+    links:
+      - database:database
     volumes:
       - ./app:/app
     command: >
       sh -c "python manage.py wait_for_db &&
              python manage.py migrate &&
              python manage.py db_setup &&
-             python manage.py create_owner owner test1234 &&
+             python manage.py create_teacher owner test@example.com test1234 &&
              python manage.py runserver 0.0.0.0:8000"
-    environment:
-      - DB_HOST=db
-      - DB_NAME=app
-      - DB_USER=postgres
-      - DB_PASS=appTest
     depends_on:
-      - db
-
-
-  db:
-    image: postgres:10-alpine
+      - database
+  database:
+    image: postgres
     environment:
-      - POSTGRES_DB=app
+      - POSTGRES_DB=postgres
       - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=appTest
-
+      - POSTGRES_PASSWORD=postgres
